@@ -59,5 +59,37 @@ defmodule CozyParams.SchemaTest do
                  ]}
               ]} = SearchParams.__cozy_params_schema__()
     end
+
+    test "has compile error when unsupported Ecto macro is called" do
+      try do
+        defmodule BadParams do
+          use CozyParams.Schema
+
+          schema do
+            field :name, :string, default: "anonymous", required: true
+            field :age, :integer
+
+            has_one :address, Address do
+              field :latitude, :float, required: true
+              field :longtitude, :float, required: true
+            end
+
+            has_many :pets, Pet do
+              field :name, :string, required: true
+              field :breed, :string
+            end
+          end
+        end
+      rescue
+        error in [ArgumentError] ->
+          assert %{
+                   message:
+                     "unsupported macro - :has_one, only :field, :embeds_one, :embeds_many are supported"
+                 } = error
+
+        _ ->
+          assert false, "bad error message"
+      end
+    end
   end
 end
