@@ -19,14 +19,31 @@ defmodule CozyParams.Schema do
   defmacro schema(do: block) do
     caller_module = __CALLER__.module
     Module.put_attribute(caller_module, :cozy_params_schema, block)
+    stripped_block = strip_ast(block)
 
     quote do
       @primary_key false
       embedded_schema do
-        unquote(block)
+        unquote(stripped_block)
       end
 
       def __cozy_params_schema__(), do: @cozy_params_schema
     end
+  end
+
+  # strip cozy_params only options, or Ecto will report invalid option error.
+  defp strip_ast(ast) do
+    Macro.prewalk(ast, fn
+      {call, meta, [name, type, opts]} when call in [:field, :embeds_one, :embeds_many] ->
+        {call, meta, [name, type, reject_unsupported_opts(opts)]}
+
+      other ->
+        other
+    end)
+  end
+
+  defp reject_unsupported_opts(opts) when is_list(opts) do
+    unsupported_opts = [:required]
+    Enum.reject(opts, fn {k, _v} -> k in unsupported_opts end)
   end
 end
