@@ -9,7 +9,7 @@ defmodule CozyParams.SchemaTest do
       field :name, :string, default: "anonymous", required: true
       field :age, :integer
 
-      embeds_one :address, Address do
+      embeds_one :address, Address, required: true do
         field :latitude, :float, required: true
         field :longtitude, :float, required: true
       end
@@ -35,6 +35,7 @@ defmodule CozyParams.SchemaTest do
                  [
                    :address,
                    {:__aliases__, _, [:Address]},
+                   [required: true],
                    [
                      do:
                        {:__block__, _,

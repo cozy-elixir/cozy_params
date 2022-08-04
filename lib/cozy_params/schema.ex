@@ -58,8 +58,20 @@ defmodule CozyParams.Schema do
   # strip cozy_params only options, or Ecto will report invalid option error.
   defp strip_ast(ast) do
     Macro.prewalk(ast, fn
-      {name, meta, [field, type, opts]} when name in @supported_ecto_macro_names ->
-        {name, meta, [field, type, reject_unsupported_opts(opts)]}
+      {:field, meta, [field, type, opts]} ->
+        {:field, meta, [field, type, reject_unsupported_opts(opts)]}
+
+      {:embeds_one, meta, [field, schema, opts_or_do_block]} ->
+        {:embeds_one, meta, [field, schema, reject_unsupported_opts(opts_or_do_block)]}
+
+      {:embeds_one, meta, [field, schema, opts, [do: _] = do_block]} ->
+        {:embeds_one, meta, [field, schema, reject_unsupported_opts(opts), do_block]}
+
+      {:embeds_many, meta, [field, schema, opts_or_do_block]} ->
+        {:embeds_many, meta, [field, schema, reject_unsupported_opts(opts_or_do_block)]}
+
+      {:embeds_many, meta, [field, schema, opts, [do: _] = do_block]} ->
+        {:embeds_many, meta, [field, schema, reject_unsupported_opts(opts), do_block]}
 
       other ->
         other
