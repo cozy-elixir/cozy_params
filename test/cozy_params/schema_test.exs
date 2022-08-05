@@ -11,12 +11,12 @@ defmodule CozyParams.SchemaTest do
           field :name, :string, default: "anonymous", required: true
           field :age, :integer
 
-          embeds_one :address, Address, required: true do
+          embeds_one :address, required: true do
             field :latitude, :float, required: true
             field :longtitude, :float, required: true
           end
 
-          embeds_many :pets, Pet do
+          embeds_many :pets do
             field :name, :string, required: true
             field :breed, :string
           end
@@ -34,12 +34,12 @@ defmodule CozyParams.SchemaTest do
           field :name, :string, default: "anonymous", required: true
           field :age, :integer
 
-          embeds_one :address, Address, required: true do
+          embeds_one :address, required: true do
             field :latitude, :float, required: true
             field :longtitude, :float, required: true
           end
 
-          embeds_many :pets, Pet do
+          embeds_many :pets do
             field :name, :string, required: true
             field :breed, :string
           end
@@ -53,7 +53,6 @@ defmodule CozyParams.SchemaTest do
                 {:embeds_one, _,
                  [
                    :address,
-                   {:__aliases__, _, [:Address]},
                    [required: true],
                    [
                      do:
@@ -67,7 +66,6 @@ defmodule CozyParams.SchemaTest do
                 {:embeds_many, _,
                  [
                    :pets,
-                   {:__aliases__, _, [:Pet]},
                    [
                      do:
                        {:__block__, _,
@@ -99,7 +97,7 @@ defmodule CozyParams.SchemaTest do
                 {:embeds_many, _,
                  [
                    :pets,
-                   {:__aliases__, _, [:Pet]},
+                   {:__aliases__, _, [:Pets]},
                    [
                      do:
                        {:__block__, _,
@@ -136,7 +134,7 @@ defmodule CozyParams.SchemaTest do
               [
                 {:field, _, [:name, :string, [default: "anonymous"]]},
                 {:field, _, [:age, :integer]},
-                {:embeds_one, [line: 123],
+                {:embeds_one, _,
                  [
                    :address,
                    {:__aliases__, _, [:Address]},

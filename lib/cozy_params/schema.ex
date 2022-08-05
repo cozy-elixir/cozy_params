@@ -48,6 +48,12 @@ defmodule CozyParams.Schema do
       {name, _meta, [_field, _type | _]} when name in @unsupported_ecto_macro_names ->
         raise ArgumentError, message(:unsupported, {name, @supported_ecto_macro_names})
 
+      {:embeds_one, _meta, [_field, _schema, _opts, [do: _]]} ->
+        raise ArgumentError, message(:unsupported, "embeds_one/4")
+
+      {:embeds_many, _meta, [_field, _schema, _opts, [do: _]]} ->
+        raise ArgumentError, message(:unsupported, "embeds_many/4")
+
       other ->
         other
     end)
@@ -60,6 +66,10 @@ defmodule CozyParams.Schema do
       |> Enum.join(", ")
 
     "unsupported macro - #{inspect(bad_call)}, only #{supported_calls_line} are supported"
+  end
+
+  defp message(:unsupported, bad_call) do
+    "unsupported macro - #{inspect(bad_call)}"
   end
 
   # Transpile shortcuts for `embeds_one` and `embeds_many`.
