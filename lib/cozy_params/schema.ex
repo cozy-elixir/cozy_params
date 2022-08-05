@@ -22,11 +22,10 @@ defmodule CozyParams.Schema do
     caller_module = __CALLER__.module
     Module.put_attribute(caller_module, :cozy_params_schema_origin, block)
 
-    ecto_block =
-      block
-      |> transpile_shortcuts()
-      |> strip_invalid_ecto_options()
+    transpiled_block = transpile_shortcuts(block)
+    Module.put_attribute(caller_module, :cozy_params_schema_transpiled, transpiled_block)
 
+    ecto_block = strip_invalid_ecto_options(transpiled_block)
     Module.put_attribute(caller_module, :cozy_params_schema_ecto, ecto_block)
 
     quote do
@@ -36,6 +35,7 @@ defmodule CozyParams.Schema do
       end
 
       def __cozy_params_schema__(:origin), do: @cozy_params_schema_origin
+      def __cozy_params_schema__(:transpiled), do: @cozy_params_schema_transpiled
       def __cozy_params_schema__(:ecto), do: @cozy_params_schema_ecto
     end
   end
