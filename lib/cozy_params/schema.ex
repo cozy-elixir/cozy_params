@@ -1,159 +1,78 @@
 defmodule CozyParams.Schema do
   @moduledoc false
 
-  @doc false
+  alias CozyParams.Schema.AST
+
   defmacro __using__(_) do
     quote do
-      unquote(__use__(:ecto))
+      use Ecto.Schema
       import unquote(__MODULE__), only: [schema: 1]
     end
   end
 
-  defp __use__(:ecto) do
-    quote do
-      use Ecto.Schema
-      import Ecto.Changeset
-    end
-  end
-
   defmacro schema(do: block) do
-    validate_ast!(block)
-
     caller_module = __CALLER__.module
-    Module.put_attribute(caller_module, :cozy_params_schema_origin, block)
 
-    transpiled_block = transpile_shortcuts(block)
+    block = AST.as_block(block)
+
+    AST.validate_block!(block)
+    Module.put_attribute(caller_module, :cozy_params_schema_original, block)
+
+    {transpiled_block, modules_to_be_created} = AST.transpile_block(caller_module, block)
     Module.put_attribute(caller_module, :cozy_params_schema_transpiled, transpiled_block)
 
-    ecto_block = strip_invalid_ecto_options(transpiled_block)
+    ecto_block = AST.as_ecto_block(transpiled_block)
     Module.put_attribute(caller_module, :cozy_params_schema_ecto, ecto_block)
+
+    %{
+      required: required_fields,
+      optional: optional_fields
+    } = AST.extract_fields(block)
+
+    Module.put_attribute(caller_module, :required_fields, required_fields)
+    Module.put_attribute(caller_module, :optional_fields, optional_fields)
+
+    %{
+      required: required_embeds,
+      optional: optional_embeds
+    } = AST.extract_embeds(block)
+
+    Module.put_attribute(caller_module, :required_embeds, required_embeds)
+    Module.put_attribute(caller_module, :optional_embeds, optional_embeds)
+
+    for {module_name, module_schema_block} <- modules_to_be_created do
+      contents =
+        quote do
+          use unquote(__MODULE__)
+
+          schema do
+            unquote(module_schema_block)
+          end
+        end
+
+      Module.create(module_name, contents, Macro.Env.location(__CALLER__))
+    end
 
     quote do
       @primary_key false
+
       embedded_schema do
         unquote(ecto_block)
       end
 
-      def __cozy_params_schema__(:origin), do: @cozy_params_schema_origin
+      def changeset(struct, params) do
+        CozyParams.Changeset.cast(struct, params,
+          required_fields: @required_fields,
+          optional_fields: @optional_fields,
+          required_embeds: @required_embeds,
+          optional_embeds: @optional_embeds
+        )
+      end
+
+      def __cozy_params_schema__(), do: __cozy_params_schema__(:original)
+      def __cozy_params_schema__(:original), do: @cozy_params_schema_original
       def __cozy_params_schema__(:transpiled), do: @cozy_params_schema_transpiled
       def __cozy_params_schema__(:ecto), do: @cozy_params_schema_ecto
-    end
-  end
-
-  @supported_ecto_macro_names [:field, :embeds_one, :embeds_many]
-  @unsupported_ecto_macro_names [:belongs_to, :has_one, :has_many, :many_to_many, :timestamp]
-
-  defp validate_ast!(ast) do
-    Macro.prewalk(ast, fn
-      {name, _meta, [_field, _type | _]} when name in @unsupported_ecto_macro_names ->
-        raise ArgumentError, message(:unsupported, {name, @supported_ecto_macro_names})
-
-      {:embeds_one, _meta, [_field, _schema, _opts, [do: _]]} ->
-        raise ArgumentError, message(:unsupported, "embeds_one/4")
-
-      {:embeds_many, _meta, [_field, _schema, _opts, [do: _]]} ->
-        raise ArgumentError, message(:unsupported, "embeds_many/4")
-
-      other ->
-        other
-    end)
-  end
-
-  defp message(:unsupported, {bad_call, supported_calls}) do
-    supported_calls_line =
-      supported_calls
-      |> Enum.map(&inspect/1)
-      |> Enum.join(", ")
-
-    "unsupported macro - #{inspect(bad_call)}, only #{supported_calls_line} are supported"
-  end
-
-  defp message(:unsupported, bad_call) do
-    "unsupported macro - #{inspect(bad_call)}"
-  end
-
-  # Transpile shortcuts for `embeds_one` and `embeds_many`.
-  #
-  # For example, following code it's not supported by Ecto, but it's supported by cozy_params, but
-  #
-  # embeds_one :address, required: true do
-  #   field :latitude, :float, required: true
-  #   field :longtitude, :float, required: true
-  # end
-  #
-  # It will be transpiled as:
-  #
-  # embeds_one :address, Address, required: true do
-  #   field :latitude, :float, required: true
-  #   field :longtitude, :float, required: true
-  # end
-  #
-  # which is supported by Ecto.
-  #
-  defp transpile_shortcuts(ast) do
-    Macro.prewalk(ast, fn
-      {:embeds_one, meta, [field, [do: _] = do_block]} ->
-        {:embeds_one, meta, [field, {:__aliases__, [], [camelize_field(field)]}, do_block]}
-
-      {:embeds_one, meta, [field, opts, [do: _] = do_block]} when is_list(opts) ->
-        {:embeds_one, meta, [field, {:__aliases__, [], [camelize_field(field)]}, opts, do_block]}
-
-      {:embeds_many, meta, [field, [do: _] = do_block]} ->
-        {:embeds_many, meta, [field, {:__aliases__, [], [camelize_field(field)]}, do_block]}
-
-      {:embeds_many, meta, [field, opts, [do: _] = do_block]} when is_list(opts) ->
-        {:embeds_many, meta, [field, {:__aliases__, [], [camelize_field(field)]}, opts, do_block]}
-
-      other ->
-        other
-    end)
-  end
-
-  defp camelize_field(field) do
-    field
-    |> Atom.to_string()
-    |> Macro.camelize()
-    |> String.to_atom()
-  end
-
-  # Strip cozy_params only options, or Ecto will report invalid option error.
-  defp strip_invalid_ecto_options(ast) do
-    Macro.prewalk(ast, fn
-      {:field, meta, [field, type, opts]} ->
-        {:field, meta, reject_unless_args([field, type, reject_unsupported_opts(opts)])}
-
-      {:embeds_one, meta, [field, schema, opts_or_do_block]} ->
-        {:embeds_one, meta,
-         reject_unless_args([field, schema, reject_unsupported_opts(opts_or_do_block)])}
-
-      {:embeds_one, meta, [field, schema, opts, [do: _] = do_block]} ->
-        {:embeds_one, meta,
-         reject_unless_args([field, schema, reject_unsupported_opts(opts), do_block])}
-
-      {:embeds_many, meta, [field, schema, opts_or_do_block]} ->
-        {:embeds_many, meta,
-         reject_unless_args([field, schema, reject_unsupported_opts(opts_or_do_block)])}
-
-      {:embeds_many, meta, [field, schema, opts, [do: _] = do_block]} ->
-        {:embeds_many, meta,
-         reject_unless_args([field, schema, reject_unsupported_opts(opts), do_block])}
-
-      other ->
-        other
-    end)
-  end
-
-  def reject_unless_args(args) do
-    Enum.reject(args, &(&1 == nil))
-  end
-
-  defp reject_unsupported_opts(opts) when is_list(opts) do
-    unsupported_opts = [:required]
-    opts = Enum.reject(opts, fn {k, _v} -> k in unsupported_opts end)
-
-    cond do
-      length(opts) == 0 -> nil
-      opts -> opts
     end
   end
 end

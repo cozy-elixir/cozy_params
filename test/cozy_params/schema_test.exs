@@ -2,28 +2,94 @@ defmodule CozyParams.SchemaTest do
   use ExUnit.Case
   doctest CozyParams.Schema
 
+  defmodule GoodParamsWithInlineDefinitions do
+    use CozyParams.Schema
+
+    schema do
+      field :name, :string, required: true
+      field :age, :integer
+
+      embeds_one :mate, required: true do
+        field :name, :string, required: true
+        field :age, :integer
+      end
+
+      embeds_many :pets do
+        field :name, :string, required: true
+        field :breed, :string
+      end
+    end
+  end
+
+  defmodule GoodParamsWithCrossModuleDefinitions do
+    use CozyParams.Schema
+
+    defmodule Mate do
+      use CozyParams.Schema
+
+      schema do
+        field :name, :string, required: true
+        field :age, :integer
+      end
+    end
+
+    defmodule Pet do
+      use CozyParams.Schema
+
+      schema do
+        field :name, :string, required: true
+        field :breed, :string
+      end
+    end
+
+    schema do
+      field :name, :string, required: true
+      field :age, :integer
+
+      embeds_one :mate, Mate, required: true
+
+      embeds_many :pets, Pet
+    end
+  end
+
   describe "schema/1" do
-    test "defines a valid struct of Ecto.Schema" do
-      defmodule SampleParams do
-        use CozyParams.Schema
+    test "find bad macros at compile time" do
+      assert_raise ArgumentError, "invalid macro bad_macro/2 of cozy_params", fn ->
+        defmodule ParamsWithBadMacro do
+          use CozyParams.Schema
 
-        schema do
-          field :name, :string, default: "anonymous", required: true
-          field :age, :integer
-
-          embeds_one :address, required: true do
-            field :latitude, :float, required: true
-            field :longtitude, :float, required: true
-          end
-
-          embeds_many :pets do
-            field :name, :string, required: true
-            field :breed, :string
+          schema do
+            bad_macro(:name, :string)
           end
         end
       end
+    end
 
-      assert [:name, :age, :address, :pets] == SampleParams.__schema__(:fields)
+    test "find macros with wrong arguments at compile time" do
+      assert_raise ArgumentError, "invalid option :do for embeds_one/3 of cozy_params", fn ->
+        defmodule ParamsWithBadMacroArguments do
+          use CozyParams.Schema
+
+          schema do
+            embeds_one :mate, Mate do
+              field :name, :string, required: true
+              field :age, :integer
+            end
+          end
+        end
+      end
+    end
+
+    test "find bad options of macros at compile time" do
+      assert_raise ArgumentError, "invalid option :unknown for field/3 of cozy_params", fn ->
+        defmodule ParamsWithBadMacroOption do
+          use CozyParams.Schema
+
+          schema do
+            field :name, :string, unknown: true
+          end
+        end
+      end
     end
 
     test "generates functions for runtime introspection" do
@@ -31,13 +97,17 @@ defmodule CozyParams.SchemaTest do
         use CozyParams.Schema
 
         schema do
-          field :name, :string, default: "anonymous", required: true
+          field :name, :string, required: true
           field :age, :integer
 
-          embeds_one :address, required: true do
-            field :latitude, :float, required: true
-            field :longtitude, :float, required: true
+          embeds_one :job, Job
+
+          embeds_one :mate, required: true do
+            field :name, :string, required: true
+            field :age, :integer
           end
+
+          embeds_many :friends, Friend
 
           embeds_many :pets do
             field :name, :string, required: true
@@ -48,20 +118,30 @@ defmodule CozyParams.SchemaTest do
 
       assert {:__block__, _,
               [
-                {:field, _, [:name, :string, [default: "anonymous", required: true]]},
+                {:field, _, [:name, :string, [required: true]]},
                 {:field, _, [:age, :integer]},
                 {:embeds_one, _,
                  [
-                   :address,
+                   :job,
+                   {:__aliases__, _, [:Job]}
+                 ]},
+                {:embeds_one, _,
+                 [
+                   :mate,
                    [required: true],
                    [
                      do:
                        {:__block__, _,
                         [
-                          {:field, _, [:latitude, :float, [required: true]]},
-                          {:field, _, [:longtitude, :float, [required: true]]}
+                          {:field, _, [:name, :string, [required: true]]},
+                          {:field, _, [:age, :integer]}
                         ]}
                    ]
+                 ]},
+                {:embeds_many, _,
+                 [
+                   :friends,
+                   {:__aliases__, _, [:Friend]}
                  ]},
                 {:embeds_many, _,
                  [
@@ -75,124 +155,116 @@ defmodule CozyParams.SchemaTest do
                         ]}
                    ]
                  ]}
-              ]} = IntrospectionParams.__cozy_params_schema__(:origin)
+              ]} = IntrospectionParams.__cozy_params_schema__(:original)
 
       assert {:__block__, _,
               [
-                {:field, _, [:name, :string, [default: "anonymous"]]},
+                {:field, _, [:name, :string, [required: true]]},
                 {:field, _, [:age, :integer]},
                 {:embeds_one, _,
                  [
-                   :address,
-                   {:__aliases__, _, [:Address]},
-                   [
-                     do:
-                       {:__block__, _,
-                        [
-                          {:field, _, [:latitude, :float]},
-                          {:field, _, [:longtitude, :float]}
-                        ]}
-                   ]
+                   :job,
+                   {:__aliases__, _, [:Job]}
+                 ]},
+                {:embeds_one, _,
+                 [
+                   :mate,
+                   CozyParams.SchemaTest.IntrospectionParams.Mate,
+                   [required: true]
+                 ]},
+                {:embeds_many, _,
+                 [
+                   :friends,
+                   {:__aliases__, _, [:Friend]}
                  ]},
                 {:embeds_many, _,
                  [
                    :pets,
-                   {:__aliases__, _, [:Pets]},
-                   [
-                     do:
-                       {:__block__, _,
-                        [
-                          {:field, _, [:name, :string]},
-                          {:field, _, [:breed, :string]}
-                        ]}
-                   ]
+                   CozyParams.SchemaTest.IntrospectionParams.Pets
+                 ]}
+              ]} = IntrospectionParams.__cozy_params_schema__(:transpiled)
+
+      assert {:__block__, _,
+              [
+                {:field, _, [:name, :string]},
+                {:field, _, [:age, :integer]},
+                {:embeds_one, _,
+                 [
+                   :job,
+                   {:__aliases__, _, [:Job]}
+                 ]},
+                {:embeds_one, _,
+                 [
+                   :mate,
+                   CozyParams.SchemaTest.IntrospectionParams.Mate
+                 ]},
+                {:embeds_many, _,
+                 [
+                   :friends,
+                   {:__aliases__, _, [:Friend]}
+                 ]},
+                {:embeds_many, _,
+                 [
+                   :pets,
+                   CozyParams.SchemaTest.IntrospectionParams.Pets
                  ]}
               ]} = IntrospectionParams.__cozy_params_schema__(:ecto)
     end
 
-    test "supports shortcuts of embeds_one and embeds_many" do
-      defmodule ShortcutParams do
-        use CozyParams.Schema
+    test "works with inline definitions" do
+      alias GoodParamsWithInlineDefinitions, as: Params
 
-        schema do
-          field :name, :string, default: "anonymous", required: true
-          field :age, :integer
+      assert %Ecto.Changeset{
+               valid?: false,
+               errors: [mate: {"can't be blank", _}]
+             } = Params.changeset(%Params{}, %{name: "Charlie"})
 
-          embeds_one :address, required: true do
-            field :latitude, :float, required: true
-            field :longtitude, :float, required: true
-          end
+      assert %Ecto.Changeset{
+               valid?: false,
+               changes: %{
+                 mate: %Ecto.Changeset{
+                   errors: [name: {"can't be blank", _}]
+                 }
+               }
+             } = Params.changeset(%Params{}, %{name: "Charlie", mate: %{}})
 
-          embeds_many :pets do
-            field :name, :string, required: true
-            field :breed, :string
-          end
-        end
-      end
+      assert %Ecto.Changeset{valid?: true} =
+               Params.changeset(%Params{}, %{name: "Charlie", mate: %{name: "Lucy"}})
 
-      assert {:__block__, _,
-              [
-                {:field, _, [:name, :string, [default: "anonymous"]]},
-                {:field, _, [:age, :integer]},
-                {:embeds_one, _,
-                 [
-                   :address,
-                   {:__aliases__, _, [:Address]},
-                   [
-                     do:
-                       {:__block__, _,
-                        [
-                          {:field, _, [:latitude, :float]},
-                          {:field, _, [:longtitude, :float]}
-                        ]}
-                   ]
-                 ]},
-                {:embeds_many, _,
-                 [
-                   :pets,
-                   {:__aliases__, _, [:Pets]},
-                   [
-                     do:
-                       {:__block__, _,
-                        [
-                          {:field, _, [:name, :string]},
-                          {:field, _, [:breed, :string]}
-                        ]}
-                   ]
-                 ]}
-              ]} = ShortcutParams.__cozy_params_schema__(:ecto)
+      assert %Ecto.Changeset{valid?: true} =
+               Params.changeset(%Params{}, %{
+                 name: "Charlie",
+                 mate: %{name: "Lucy"},
+                 pets: [%{name: "Snoopy"}]
+               })
     end
 
-    test "reports compile error when unsupported Ecto macro is called" do
-      try do
-        defmodule BadParams do
-          use CozyParams.Schema
+    test "works with cross module definitions" do
+      alias GoodParamsWithCrossModuleDefinitions, as: Params
 
-          schema do
-            field :name, :string, default: "anonymous", required: true
-            field :age, :integer
+      assert %Ecto.Changeset{
+               valid?: false,
+               errors: [mate: {"can't be blank", _}]
+             } = Params.changeset(%Params{}, %{name: "Charlie"})
 
-            has_one :address, Address do
-              field :latitude, :float, required: true
-              field :longtitude, :float, required: true
-            end
+      assert %Ecto.Changeset{
+               valid?: false,
+               changes: %{
+                 mate: %Ecto.Changeset{
+                   errors: [name: {"can't be blank", _}]
+                 }
+               }
+             } = Params.changeset(%Params{}, %{name: "Charlie", mate: %{}})
 
-            has_many :pets, Pet do
-              field :name, :string, required: true
-              field :breed, :string
-            end
-          end
-        end
-      rescue
-        error in [ArgumentError] ->
-          assert %{
-                   message:
-                     "unsupported macro - :has_one, only :field, :embeds_one, :embeds_many are supported"
-                 } = error
+      assert %Ecto.Changeset{valid?: true} =
+               Params.changeset(%Params{}, %{name: "Charlie", mate: %{name: "Lucy"}})
 
-        _ ->
-          assert false, "bad error message"
-      end
+      assert %Ecto.Changeset{valid?: true} =
+               Params.changeset(%Params{}, %{
+                 name: "Charlie",
+                 mate: %{name: "Lucy"},
+                 pets: [%{name: "Snoopy"}]
+               })
     end
   end
 end
