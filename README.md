@@ -1,5 +1,7 @@
 # CozyParams
 
+[![Actions Status](https://github.com/c4710n/cozy_params/workflows/build/badge.svg)](https://github.com/c4710n/cozy_params/actions)
+
 Provides Ecto-like API for casting params.
 
 ## Why?
