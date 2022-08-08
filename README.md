@@ -1,6 +1,6 @@
 # CozyParams
 
-Provides Ecto-like API for params checking.
+Provides Ecto-like API for casting params.
 
 ## Why?
 
@@ -16,7 +16,7 @@ There are some packages in the community:
 But, they don't fit my requirements. The package in my dream should:
 
 - be based on [Ecto](https://github.com/elixir-ecto/ecto) which is robust and battle-tested.
-- use Ecto-like API, which eliminates friction when working on params checking and data modeling at the same time.
+- use Ecto-like API, which eliminates friction when working on casting params and modeling data source at the same time.
 
 ## Installation
 
@@ -29,6 +29,14 @@ def deps do
   ]
 end
 ```
+
+## Overview
+
+- At the lowest level, `CozyParams.Schema` does all the hard work. (Generally, you have no need to use it)
+- At the high level, `CozyParams` provides neat macros for developers' happiness.
+- For better integration with other libraries, following modules are provided:
+  - `CozyParams.PhoenixController`
+  - ...
 
 ## Usage
 
@@ -109,9 +117,16 @@ end
    - available `opts`:
      - `:required` - default: `false`
 
-## Helper for [Phoenix](https://github.com/phoenixframework/phoenix)
+## `CozyParams.PhoenixController`
 
-TODO
+```elixir
+defmodule DemoWeb.PageController do
+  use DemoWeb, :controller
+  use CozyParams.PhoenixController
+end
+```
+
+Helper for [Phoenix](https://github.com/phoenixframework/phoenix)
 
 ## Helper for extracting error messages from `%Ecto.Changeset{}`
 
