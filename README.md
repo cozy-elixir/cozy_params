@@ -88,41 +88,26 @@ defmodule GoodParamsWithCrossModuleDefinitions do
 end
 ```
 
-## Supported API
+## `CozyParams.Schema`
 
-While `cozy_params` provides Ecto-like API, there are still some differences.
-
-### `field(name, type, opts \\ [])`
-
-available `opts`:
-
-- `:default`
-- `:autogenerate`
-- `:required` - default: `false`
-
-### `embeds_one(name, opts \\ [], do: block)`
-
-available `opts`:
-
-- `:required` - default: `false`
-
-### `embeds_one(name, schema, opts \\ [])`
-
-available `opts`:
-
-- `:required` - default: `false`
-
-### `embeds_many(name, opts \\ [], do: block)`
-
-available `opts`:
-
-- `:required` - default: `false`
-
-### `embeds_many(name, schema, opts \\ [])`
-
-available `opts`:
-
-- `:required` - default: `false`
+1. `schema(do: block)`
+2. `field(name, type, opts \\ [])`
+   - available `opts`:
+     - `:default`
+     - `:autogenerate`
+     - `:required` - default: `false`
+3. `embeds_one(name, opts \\ [], do: block)`
+   - available `opts`:
+     - `:required` - default: `false`
+4. `embeds_one(name, schema, opts \\ [])`
+   - available `opts`:
+     - `:required` - default: `false`
+5. `embeds_many(name, opts \\ [], do: block)`
+   - available `opts`:
+     - `:required` - default: `false`
+6. `embeds_many(name, schema, opts \\ [])`
+   - available `opts`:
+     - `:required` - default: `false`
 
 ## Helper for [Phoenix](https://github.com/phoenixframework/phoenix)
 
