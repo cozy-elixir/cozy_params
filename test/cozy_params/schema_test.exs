@@ -2,7 +2,7 @@ defmodule CozyParams.SchemaTest do
   use ExUnit.Case
   doctest CozyParams.Schema
 
-  defmodule GoodParamsWithInlineDefinitions do
+  defmodule GoodParamsWithInlineSyntax do
     use CozyParams.Schema
 
     schema do
@@ -21,7 +21,7 @@ defmodule CozyParams.SchemaTest do
     end
   end
 
-  defmodule GoodParamsWithCrossModuleDefinitions do
+  defmodule GoodParamsWithExtraModules do
     use CozyParams.Schema
 
     defmodule Mate do
@@ -45,9 +45,7 @@ defmodule CozyParams.SchemaTest do
     schema do
       field :name, :string, required: true
       field :age, :integer
-
       embeds_one :mate, Mate, required: true
-
       embeds_many :pets, Pet
     end
   end
@@ -211,8 +209,8 @@ defmodule CozyParams.SchemaTest do
               ]} = IntrospectionParams.__cozy_params_schema__(:ecto)
     end
 
-    test "works with inline definitions" do
-      alias GoodParamsWithInlineDefinitions, as: Params
+    test "works with inline syntax" do
+      alias GoodParamsWithInlineSyntax, as: Params
 
       assert %Ecto.Changeset{
                valid?: false,
@@ -239,8 +237,8 @@ defmodule CozyParams.SchemaTest do
                })
     end
 
-    test "works with cross module definitions" do
-      alias GoodParamsWithCrossModuleDefinitions, as: Params
+    test "works with extra modules" do
+      alias GoodParamsWithExtraModules, as: Params
 
       assert %Ecto.Changeset{
                valid?: false,
