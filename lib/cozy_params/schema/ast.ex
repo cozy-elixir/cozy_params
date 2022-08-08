@@ -158,11 +158,13 @@ defmodule CozyParams.Schema.AST do
   end
 
   defp to_module_name(caller_module, name) do
-    name
-    |> Atom.to_string()
-    |> Macro.camelize()
-    |> String.to_atom()
-    |> then(&Module.concat(caller_module, &1))
+    name =
+      name
+      |> Atom.to_string()
+      |> Macro.camelize()
+      |> String.to_atom()
+
+    Module.concat(caller_module, name)
   end
 
   @doc """
