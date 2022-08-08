@@ -30,6 +30,18 @@ def deps do
 end
 ```
 
+And, it's encouraged to setup `.formatter.exs` for `cozy_params`:
+
+```elixir
+[
+  import_deps: [
+    # ...
+    :cozy_params
+  ],
+  # ...
+]
+```
+
 ## Overview
 
 - At the lowest level, `CozyParams.Schema` does all the hard work. (Generally, you have no need to use it)
