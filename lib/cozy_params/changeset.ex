@@ -15,9 +15,31 @@ defmodule CozyParams.Changeset do
     |> cast_embeds(optional_embeds)
   end
 
+  def validate(changeset) do
+    changeset
+    |> Ecto.Changeset.apply_action(:validate)
+    |> case do
+      {:ok, struct} ->
+        struct
+        |> Map.from_struct()
+        |> Map.delete(:__meta__)
+
+      other ->
+        other
+    end
+  end
+
   defp cast_embeds(changeset, names, opts \\ []) do
     Enum.reduce(names, changeset, fn name, acc ->
       Ecto.Changeset.cast_embed(acc, name, opts)
+    end)
+  end
+
+  def error_messages(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Enum.reduce(opts, msg, fn {key, value}, acc ->
+        String.replace(acc, "%{#{key}}", to_string(value))
+      end)
     end)
   end
 end

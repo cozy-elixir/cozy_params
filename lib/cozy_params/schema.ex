@@ -69,14 +69,14 @@ defmodule CozyParams.Schema do
         )
       end
 
+      defoverridable changeset: 2
+
       def from(params) do
         __MODULE__
         |> struct
         |> changeset(params)
-        |> Ecto.Changeset.apply_action(:validate)
+        |> CozyParams.Changeset.validate()
       end
-
-      defoverridable changeset: 2
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:original)
       def __cozy_params_schema__(:original), do: @cozy_params_schema_original
