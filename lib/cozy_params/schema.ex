@@ -69,6 +69,8 @@ defmodule CozyParams.Schema do
         )
       end
 
+      defoverridable changeset: 2
+
       def __cozy_params_schema__(), do: __cozy_params_schema__(:original)
       def __cozy_params_schema__(:original), do: @cozy_params_schema_original
       def __cozy_params_schema__(:transpiled), do: @cozy_params_schema_transpiled
