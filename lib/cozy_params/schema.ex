@@ -71,11 +71,13 @@ defmodule CozyParams.Schema do
 
       defoverridable changeset: 2
 
-      def from(params) do
+      def from(params, opts \\ []) do
+        type = Keyword.get(opts, :type, :struct)
+
         __MODULE__
         |> struct
         |> changeset(params)
-        |> CozyParams.Changeset.validate()
+        |> CozyParams.Changeset.validate(type)
       end
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:original)

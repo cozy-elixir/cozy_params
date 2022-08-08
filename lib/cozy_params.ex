@@ -6,6 +6,8 @@ defmodule CozyParams do
   @doc """
   Defines a function for casting params.
 
+  Inspired by [vic/params](https://github.com/vic/params).
+
   ## Examples
 
   ```elixir
@@ -40,8 +42,8 @@ defmodule CozyParams do
     Module.create(module_name, contents, Macro.Env.location(__CALLER__))
 
     quote do
-      def unquote(name)(params) do
-        unquote(module_name).from(params)
+      def unquote(name)(params, opts \\ []) do
+        unquote(module_name).from(params, opts)
       end
     end
   end

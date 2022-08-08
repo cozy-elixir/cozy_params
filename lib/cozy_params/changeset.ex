@@ -15,7 +15,12 @@ defmodule CozyParams.Changeset do
     |> cast_embeds(optional_embeds)
   end
 
-  def validate(changeset) do
+  def validate(changeset, :struct) do
+    changeset
+    |> Ecto.Changeset.apply_action(:validate)
+  end
+
+  def validate(changeset, :map) do
     changeset
     |> Ecto.Changeset.apply_action(:validate)
     |> case do
