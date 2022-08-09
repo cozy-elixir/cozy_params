@@ -54,6 +54,17 @@ end
 
 Visit [HexDocs](https://hexdocs.pm/cozy_params) for more details.
 
+## uhhh... I don't like it
+
+You can try:
+
+- [params](https://github.com/vic/params)
+- [maru_params](https://github.com/elixir-maru/maru_params)
+- [tarams](https://github.com/bluzky/tarams)
+- [`params.ex` from imranismail](https://gist.github.com/imranismail/eb60c709b230c1cbf344553888b9387d)
+
+Find more at [hex.pm](https://hex.pm/packages?search=params&sort=recent_downloads).
+
 ## License
 
 Apache License 2.0
