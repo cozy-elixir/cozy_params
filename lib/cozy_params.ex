@@ -4,7 +4,9 @@ defmodule CozyParams do
   """
 
   @doc """
-  Defines a function for casting params.
+  Defines a function for casting and validating params.
+
+  > Essentially, this macro is just a shortcut for using `CozyParams.Schema`.
 
   Inspired by [vic/params](https://github.com/vic/params).
 
@@ -25,6 +27,20 @@ defmodule CozyParams do
     end
   end
   ```
+
+  Above `defparams :product_search do: block` will:
+  1. create a module `Demo.CozyParams.ProductSearch` automatically.
+  2. inject `product_search/1` and `product_search/2` into current module. And, these
+     two functions will call `Demo.CozyParams.ProductSearch.from` internally.
+
+  For more details of the schema definations in `do: block`, check out `CozyParams.Schema`.
+
+  > `defparams` can be used in any module, not limited to Phoenix controllers.
+  >
+  > In order to demonstrate this point, above example is using an normal `Demo` module,
+  > instead of a Phoenix controller.
+  >
+  > For better integration with Phoenix controllers, check out `CozyParams.PhoenixController`.
 
   """
   defmacro defparams(name, do: block) when is_atom(name) do
