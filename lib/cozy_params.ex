@@ -2,6 +2,7 @@ defmodule CozyParams do
   @moduledoc """
   Expose more user friendly API for underlying modules.
   """
+  @moduledoc since: "0.1.0"
 
   @doc """
   Defines a function for casting and validating params.
@@ -43,6 +44,7 @@ defmodule CozyParams do
   > For better integration with Phoenix controllers, check out `CozyParams.PhoenixController`.
 
   """
+  @doc since: "0.1.0"
   defmacro defparams(name, do: block) when is_atom(name) do
     module_name = to_module_name(__CALLER__.module, name)
 

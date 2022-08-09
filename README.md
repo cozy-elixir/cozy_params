@@ -4,7 +4,7 @@
 
 Provides Ecto-like API for casting and validating params.
 
-## Why?
+## Why another package?
 
 There are some packages in the community:
 
@@ -46,105 +46,13 @@ end
 
 ## Overview
 
-- At the lowest level, `CozyParams.Schema` does all the hard work. (Generally, you have no need to use it)
-- At the high level, `CozyParams` provides neat macros for developers' happiness.
-- For better integration with other libraries, following modules are provided:
-  - `CozyParams.PhoenixController`
+- `CozyParams` - provides macros for general usage.
+- For better integration with other libraries:
+  - `CozyParams.PhoenixController` - providing macros for integrating with [Phoenix](https://github.com/phoenixframework/phoenix) controllers.
   - ...
+- `CozyParams.Schema` - the module at lowest level. Generally, you don't use it directly.
 
-## Usage
-
-### define a params module with inline syntax
-
-```elixir
-defmodule Params do
-  use CozyParams.Schema
-
-  schema do
-    field :name, :string, required: true
-    field :age, :integer
-
-    embeds_one :mate, required: true do
-      field :name, :string, required: true
-      field :age, :integer
-    end
-
-    embeds_many :pets do
-      field :name, :string, required: true
-      field :breed, :string
-    end
-  end
-end
-```
-
-### define a params module with extra modules
-
-```elixir
-defmodule GoodParamsWithCrossModuleDefinitions do
-  use CozyParams.Schema
-
-  defmodule Mate do
-    use CozyParams.Schema
-
-    schema do
-      field :name, :string, required: true
-      field :age, :integer
-    end
-  end
-
-  defmodule Pet do
-    use CozyParams.Schema
-
-    schema do
-      field :name, :string, required: true
-      field :breed, :string
-    end
-  end
-
-  schema do
-    field :name, :string, required: true
-    field :age, :integer
-    embeds_one :mate, Mate, required: true
-    embeds_many :pets, Pet
-  end
-end
-```
-
-## `CozyParams.Schema`
-
-1. `schema(do: block)`
-2. `field(name, type, opts \\ [])`
-   - available `opts`:
-     - `:default`
-     - `:autogenerate`
-     - `:required` - default: `false`
-3. `embeds_one(name, opts \\ [], do: block)`
-   - available `opts`:
-     - `:required` - default: `false`
-4. `embeds_one(name, schema, opts \\ [])`
-   - available `opts`:
-     - `:required` - default: `false`
-5. `embeds_many(name, opts \\ [], do: block)`
-   - available `opts`:
-     - `:required` - default: `false`
-6. `embeds_many(name, schema, opts \\ [])`
-   - available `opts`:
-     - `:required` - default: `false`
-
-## `CozyParams.PhoenixController`
-
-```elixir
-defmodule DemoWeb.PageController do
-  use DemoWeb, :controller
-  use CozyParams.PhoenixController
-end
-```
-
-Helper for [Phoenix](https://github.com/phoenixframework/phoenix)
-
-## Helper for extracting error messages from `%Ecto.Changeset{}`
-
-TODO
+Visit [HexDocs](https://hexdocs.pm/cozy_params) for more details.
 
 ## License
 

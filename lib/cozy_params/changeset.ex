@@ -1,6 +1,7 @@
 defmodule CozyParams.Changeset do
   @moduledoc false
 
+  @doc false
   def cast_and_validate(struct, params, opts \\ []) do
     required_fields = Keyword.fetch!(opts, :required_fields)
     optional_fields = Keyword.fetch!(opts, :optional_fields)
@@ -15,12 +16,14 @@ defmodule CozyParams.Changeset do
     |> cast_embeds(optional_embeds)
   end
 
-  def validate(changeset, :struct) do
+  @doc false
+  def apply_action(changeset, :struct) do
     changeset
     |> Ecto.Changeset.apply_action(:validate)
   end
 
-  def validate(changeset, :map) do
+  @doc false
+  def apply_action(changeset, :map) do
     changeset
     |> Ecto.Changeset.apply_action(:validate)
     |> case do

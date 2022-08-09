@@ -1,5 +1,102 @@
 defmodule CozyParams.Schema do
-  @moduledoc false
+  @moduledoc ~S"""
+  Provides macros for defining schemas which is used for casting and validating params.
+
+  > Due to limitations of implementation, it's impossible to document every supported
+  > macros within `@doc`. Because of that, I will try to best to document them
+  > within `@moduledoc`.
+
+  ## Available macros
+
+  `CozyParams.Schema` provides a subset of macros supported by Ecto, In addition,
+  it makes some changes on `embeds_one` and `embeds_many`.
+
+  In a nutshell, all available macros are:
+
+  1. `schema(do: block)`
+  2. `field(name, type, opts \\ [])`
+     - available `opts`:
+       - `:default`
+       - `:autogenerate`
+       - `:required` - default: `false`
+  3. `embeds_one(name, opts \\ [], do: block)`
+     - available `opts`:
+       - `:required` - default: `false`
+  4. `embeds_one(name, schema, opts \\ [])`
+     - available `opts`:
+       - `:required` - default: `false`
+  5. `embeds_many(name, opts \\ [], do: block)`
+     - available `opts`:
+       - `:required` - default: `false`
+  6. `embeds_many(name, schema, opts \\ [])`
+     - available `opts`:
+       - `:required` - default: `false`
+
+  > `type` argument will be passed to `Ecto.Schema`, so it supports all the types supported
+  > by `Ecto.Schema` in theory.
+  > Read *Types and casting* section of `Ecto.Schema` to get more information.
+
+  ## Examples
+
+  Define a schema contains embedded fields in inline syntax:
+
+  ```elixir
+  defmodule PersonParams do
+    use CozyParams.Schema
+
+    schema do
+      field :name, :string, required: true
+      field :age, :integer
+
+      embeds_one :mate, required: true do
+        field :name, :string, required: true
+        field :age, :integer
+      end
+
+      embeds_many :pets do
+        field :name, :string, required: true
+        field :breed, :string
+      end
+    end
+  end
+  ```
+
+
+  Define a schema contains embedded fields with extra modules:
+
+  ```elixir
+  defmodule PersonParams do
+    use CozyParams.Schema
+
+    defmodule Mate do
+      use CozyParams.Schema
+
+      schema do
+        field :name, :string, required: true
+        field :age, :integer
+      end
+    end
+
+    defmodule Pet do
+      use CozyParams.Schema
+
+      schema do
+        field :name, :string, required: true
+        field :breed, :string
+      end
+    end
+
+    schema do
+      field :name, :string, required: true
+      field :age, :integer
+      embeds_one :mate, Mate, required: true
+      embeds_many :pets, Pet
+    end
+  end
+  ```
+
+  """
+  @moduledoc since: "0.1.0"
 
   alias CozyParams.Schema.AST
 
@@ -10,6 +107,7 @@ defmodule CozyParams.Schema do
     end
   end
 
+  @doc since: "0.1.0"
   defmacro schema(do: block) do
     caller_module = __CALLER__.module
 
@@ -77,7 +175,7 @@ defmodule CozyParams.Schema do
         __MODULE__
         |> struct
         |> changeset(params)
-        |> CozyParams.Changeset.validate(type)
+        |> CozyParams.Changeset.apply_action(type)
       end
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:original)
