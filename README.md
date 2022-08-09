@@ -48,7 +48,7 @@ end
 
 - `CozyParams` - provides macros for general usage.
 - For better integration with other libraries:
-  - `CozyParams.PhoenixController` - providing macros for integrating with [Phoenix](https://github.com/phoenixframework/phoenix) controllers.
+  - `CozyParams.PhoenixController`
   - ...
 - `CozyParams.Schema` - the module at lowest level. Generally, you don't use it directly.
 
