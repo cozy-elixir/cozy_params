@@ -283,4 +283,35 @@ defmodule CozyParams.SchemaTest do
                    end
     end
   end
+
+  describe "changeset/2" do
+    test "is overridable" do
+      defmodule ParamsWithOveridedChangeset do
+        use CozyParams.Schema
+
+        schema do
+          field :name, :string, required: true
+        end
+
+        def changeset(struct, params) do
+          struct
+          |> super(params)
+          |> Ecto.Changeset.validate_format(:name, ~r/@/)
+        end
+      end
+
+      alias ParamsWithOveridedChangeset, as: Params
+
+      assert {:error,
+              %Ecto.Changeset{
+                valid?: false,
+                errors: [name: {"has invalid format", [validation: :format]}]
+              }} = Params.from(%{name: "Charlie"})
+
+      assert {:ok,
+              %{
+                name: "@Charlie"
+              }} = Params.from(%{name: "@Charlie"})
+    end
+  end
 end
