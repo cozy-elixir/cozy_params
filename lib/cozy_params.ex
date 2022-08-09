@@ -71,4 +71,10 @@ defmodule CozyParams do
 
     Module.concat([caller_module, namespace_for_cozy_params, Macro.camelize("#{name}")])
   end
+
+  @doc """
+  Extract error messages from `%Ecto.Changeset{}`.
+  """
+  @doc since: "0.1.0"
+  defdelegate get_error_messages(changeset), to: CozyParams.Changeset
 end

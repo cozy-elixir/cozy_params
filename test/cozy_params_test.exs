@@ -34,4 +34,19 @@ defmodule CozyParamsTest do
       assert {:error, %Ecto.Changeset{valid?: false}} = DemoB.product_search(%{}, type: :map)
     end
   end
+
+  describe "CozyParams.Changeset.get_error_messages/1" do
+    test "is delegated by CozyParams" do
+      defmodule DemoC do
+        import CozyParams
+
+        defparams :product_search do
+          field :name, :string, required: true
+        end
+      end
+
+      assert {:error, changeset} = DemoC.product_search(%{})
+      assert %{name: ["can't be blank"]} == CozyParams.get_error_messages(changeset)
+    end
+  end
 end
