@@ -95,6 +95,14 @@ defmodule CozyParams.Schema do
   end
   ```
 
+  ## About the generated functions
+
+  `schema/1` will create 2 functions automatically:
+
+  1. `changeset/2` which is overridable.
+  2. `from/1` / `from/2` which will be called by high-level abstractions, such as
+     `CozyParams`, `CozyParams.PhoenixController`.
+
   """
   @moduledoc since: "0.1.0"
 

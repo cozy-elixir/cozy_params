@@ -54,6 +54,9 @@ defmodule CozyParams.PhoenixController do
     end
   end
   ```
+
+  For more details of the schema definations in `do: block`, check out `CozyParams.Schema`.
+
   """
   @doc since: "0.1.0"
 
