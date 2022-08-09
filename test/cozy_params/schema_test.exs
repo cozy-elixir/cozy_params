@@ -284,6 +284,135 @@ defmodule CozyParams.SchemaTest do
     end
   end
 
+  describe "field/2 and field/3" do
+    test "support all primitive types of Ecto" do
+      defmodule ParamsWithAllEctoPrimitiveTypes do
+        use CozyParams.Schema
+
+        schema do
+          field :id, :id, required: true
+          field :binary_id, :binary_id, required: true
+          field :integer, :integer, required: true
+          field :float, :float, required: true
+          field :boolean, :boolean, required: true
+          field :string, :string, required: true
+          field :binary, :string, required: true
+          field :array_with_inner_type, {:array, :integer}, required: true
+          field :map, :map, required: true
+          field :map_with_inner_type, {:map, :float}, required: true
+          field :decimal, :decimal, required: true
+          field :date, :date, required: true
+          field :time, :time, required: true
+          field :time_usec, :time_usec, required: true
+          field :naive_datetime, :naive_datetime, required: true
+          field :naive_datetime_usec, :naive_datetime_usec, required: true
+          field :utc_datetime, :utc_datetime, required: true
+          field :utc_datetime_usec, :utc_datetime_usec, required: true
+        end
+      end
+
+      alias ParamsWithAllEctoPrimitiveTypes, as: Params
+
+      assert {:ok,
+              %{
+                id: 123,
+                binary_id: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                integer: 2234,
+                float: 1.22,
+                boolean: false,
+                string: "hello world!",
+                binary: "hello world!",
+                array_with_inner_type: [1, 2, 3],
+                map: %{pet: "dog"},
+                map_with_inner_type: %{cat: 1.0, dog: 2.0, sheep: 3.0},
+                decimal: Decimal.new("2.30"),
+                date: ~D[2022-08-09],
+                time: ~T[10:34:00],
+                naive_datetime: ~N[2022-08-09 10:36:25],
+                naive_datetime_usec: ~N[2022-08-09 10:36:25.648266],
+                time_usec: ~T[10:34:21.489485],
+                utc_datetime: ~U[2022-08-09 10:36:25Z],
+                utc_datetime_usec: ~U[2022-08-09 10:36:25.648266Z]
+              }} ==
+               Params.from(
+                 %{
+                   id: 123,
+                   binary_id: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                   integer: "2234",
+                   float: "1.22",
+                   boolean: "false",
+                   string: "hello world!",
+                   binary: "hello world!",
+                   array_with_inner_type: ["1", "2", "3"],
+                   map: %{pet: "dog"},
+                   map_with_inner_type: %{cat: "1", dog: "2", sheep: "3"},
+                   decimal: "2.30",
+                   date: "2022-08-09",
+                   time: "10:34:00",
+                   time_usec: "10:34:21.489485",
+                   naive_datetime: "2022-08-09 10:36:25.648266",
+                   naive_datetime_usec: "2022-08-09 10:36:25.648266",
+                   utc_datetime: "2022-08-09 10:36:25.648266",
+                   utc_datetime_usec: "2022-08-09 10:36:25.648266"
+                 },
+                 type: :map
+               )
+    end
+
+    test "supports custom types of Ecto" do
+      defmodule ParamsWithEctoCustomTypes do
+        use CozyParams.Schema
+
+        schema do
+          field :uuid, Ecto.UUID, required: true
+          field :enum, Ecto.Enum, values: [:cat, :dog, :sheep], required: true
+        end
+      end
+
+      alias ParamsWithEctoCustomTypes, as: Params
+
+      assert {:ok,
+              %{
+                uuid: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                enum: :cat
+              }} ==
+               Params.from(
+                 %{
+                   uuid: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                   enum: "cat"
+                 },
+                 type: :map
+               )
+    end
+
+    test "supports option - :default" do
+      defmodule ParamsWithDefaultOption do
+        use CozyParams.Schema
+
+        schema do
+          field :age, :integer, default: 6
+        end
+      end
+
+      alias ParamsWithDefaultOption, as: Params
+      assert {:ok, %{age: 6}} = Params.from(%{})
+    end
+
+    # test "supports option - :autogenerate" do
+    #   defmodule ParamsWithAutogenerateOption do
+    #     use CozyParams.Schema
+
+    #     schema do
+    #       field :published_at, :utc_datetime,
+    #         autogenerate: {DateTime, :new!, [~D[2016-05-24], ~T[13:26:08.003], "Etc/UTC"]}
+    #     end
+    #   end
+
+    #   alias ParamsWithAutogenerateOption, as: Params
+    #   assert {:ok, %{published_at: ~U[2016-05-24 13:26:08.003Z]}} = Params.from(%{})
+    # end
+  end
+
   describe "changeset/2" do
     test "is overridable" do
       defmodule ParamsWithOveridedChangeset do

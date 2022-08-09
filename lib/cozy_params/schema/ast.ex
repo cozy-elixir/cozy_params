@@ -61,7 +61,17 @@ defmodule CozyParams.Schema.AST do
   end
 
   defp validate_opts!({:field, _, _} = ast, opts) do
-    supported_opt_names = [:default, :autogenerate, :required]
+    supported_opt_names = [
+      # general
+      :default,
+      :autogenerate,
+
+      # Ecto.Enum
+      :values,
+
+      # cozy_params only
+      :required
+    ]
 
     Enum.each(opts, fn {name, _v} ->
       do_validate!(ast, name, supported_opt_names)
