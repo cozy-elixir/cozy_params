@@ -18,8 +18,8 @@ defmodule CozyParams.PhoenixController do
     end
 
     def index(conn, params) do
-      # + when external params is valid, `params` will be converted as a map with atom keys.
-      # + when external params is invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
+      # + when external params are valid, `params` will be converted as a map with atom keys.
+      # + when external params are invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
       #   which allows developers to handle it in the fallback controller.
     end
   end
@@ -48,8 +48,8 @@ defmodule CozyParams.PhoenixController do
     end
 
     def index(conn, params) do
-      # + when external params is valid, `params` will be converted as a map with atom keys.
-      # + when external params is invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
+      # + when external params are valid, `params` will be converted as a map with atom keys.
+      # + when external params are invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
       #   which allows developers to handle it in the fallback controller.
     end
   end
