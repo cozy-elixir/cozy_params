@@ -28,9 +28,10 @@ defmodule CozyParams.Changeset do
     |> Ecto.Changeset.apply_action(:validate)
     |> case do
       {:ok, struct} ->
-        struct
-        |> Map.from_struct()
-        |> Map.delete(:__meta__)
+        {:ok,
+         struct
+         |> Map.from_struct()
+         |> Map.delete(:__meta__)}
 
       other ->
         other
