@@ -264,5 +264,23 @@ defmodule CozyParams.SchemaTest do
                  pets: [%{name: "Snoopy"}]
                })
     end
+
+    test "is forbidden to call twice" do
+      assert_raise RuntimeError,
+                   ~r/^schema already defined for CozyParams.SchemaTest.ParamsThatCallSchemaTwice.*/,
+                   fn ->
+                     defmodule ParamsThatCallSchemaTwice do
+                       use CozyParams.Schema
+
+                       schema do
+                         field :name, :string
+                       end
+
+                       schema do
+                         field :name, :string
+                       end
+                     end
+                   end
+    end
   end
 end

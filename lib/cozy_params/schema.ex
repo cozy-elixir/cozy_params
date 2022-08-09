@@ -110,6 +110,7 @@ defmodule CozyParams.Schema do
   @doc since: "0.1.0"
   defmacro schema(do: block) do
     caller_module = __CALLER__.module
+    caller_line = __CALLER__.line
 
     block = AST.as_block(block)
 
@@ -152,8 +153,13 @@ defmodule CozyParams.Schema do
     end
 
     quote do
-      @primary_key false
+      if line = Module.get_attribute(__MODULE__, :cozy_params_schema_defined) do
+        raise "schema already defined for #{inspect(__MODULE__)} on line #{line}"
+      end
 
+      @cozy_params_schema_defined unquote(caller_line)
+
+      @primary_key false
       embedded_schema do
         unquote(ecto_block)
       end
