@@ -39,3 +39,26 @@ end
 ```
 
 A harder way is to extend `CozyParams.Schema` at AST level, which requires you to improve `CozyParams.Schema.AST`.
+
+## How to handle the errors returned by `CozyParams`?
+
+All checking functions of `CozyParams` will return `{:error, %Ecto.Changest{}}` as error.
+
+You can pattern match the data structure, and convert the changeset as error messages by using `CozyParams.get_error_messages/1`.
+
+For example, in a Phoenix project, you can do that in the fallback controller:
+
+```elixir
+defmodule DemoWeb.FallbackController do
+  use DemoWeb, :controller
+
+  # ...
+
+  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
+    messages = CozyParams.get_error_messages(changeset)
+    # ...
+  end
+
+  # ...
+end
+```
