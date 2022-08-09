@@ -22,7 +22,7 @@ But, they don't fit my requirements. The package in my dream should:
 
 ## Installation
 
-The package can be installed by adding `cozy_params` to your list of dependencies in `mix.exs`:
+Add `cozy_params` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -32,7 +32,7 @@ def deps do
 end
 ```
 
-And, it's encouraged to setup `.formatter.exs` for `cozy_params`:
+(Optional) And, it's encouraged to setup `.formatter.exs` for `cozy_params`:
 
 ```elixir
 [
