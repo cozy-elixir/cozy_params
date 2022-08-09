@@ -43,6 +43,12 @@ defmodule CozyParams do
   >
   > For better integration with Phoenix controllers, check out `CozyParams.PhoenixController`.
 
+  ## Error handling
+
+  When external params are invalid, `{:error, params_changeset: %Ecto.Changeset{}}`
+  will be returned, which allows developers to match this pattern for handling errors.
+
+  If the error messages is required, `CozyParams.get_error_messages/1` would be helpful.
   """
   @doc since: "0.1.0"
   defmacro defparams(name, do: block) when is_atom(name) do

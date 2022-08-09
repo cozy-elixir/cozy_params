@@ -20,7 +20,7 @@ defmodule CozyParams.PhoenixControllerTest do
       assert {:conn, %{name: "Charlie"}} = Controller.index(:conn, %{"name" => "Charlie"})
     end
 
-    test "returns {:error, %Ecto.Changeset{}} when params are invalid" do
+    test "returns {:error, params_changeset: %Ecto.Changeset{}} when params are invalid" do
       defmodule DemoWeb.PageBController do
         use CozyParams.PhoenixController
 
@@ -34,7 +34,9 @@ defmodule CozyParams.PhoenixControllerTest do
       end
 
       alias DemoWeb.PageBController, as: Controller
-      assert {:error, %Ecto.Changeset{valid?: false}} = Controller.index(:conn, %{})
+
+      assert {:error, params_changeset: %Ecto.Changeset{valid?: false}} =
+               Controller.index(:conn, %{})
     end
   end
 end

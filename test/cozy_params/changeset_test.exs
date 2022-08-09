@@ -13,7 +13,7 @@ defmodule CozyParams.ChangesetTest do
         end
       end
 
-      assert {:error, changeset} = ParamsA.from(%{})
+      assert {:error, params_changeset: changeset} = ParamsA.from(%{})
 
       assert %{
                name: ["can't be blank"]
@@ -40,7 +40,7 @@ defmodule CozyParams.ChangesetTest do
         end
       end
 
-      assert {:error, changeset} = ParamsB.from(%{mate: %{}, pets: [%{}, %{}]})
+      assert {:error, params_changeset: changeset} = ParamsB.from(%{mate: %{}, pets: [%{}, %{}]})
 
       assert %{
                mate: %{name: ["can't be blank"]},

@@ -19,8 +19,8 @@ defmodule CozyParams.PhoenixController do
 
     def index(conn, params) do
       # + when external params are valid, `params` will be converted as a map with atom keys.
-      # + when external params are invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
-      #   which allows developers to handle it in the fallback controller.
+      # + when external params are invalid, `{:error, params_changeset: %Ecto.Changeset{}}`
+      #   will be returned.
     end
   end
   ```
@@ -49,13 +49,56 @@ defmodule CozyParams.PhoenixController do
 
     def index(conn, params) do
       # + when external params are valid, `params` will be converted as a map with atom keys.
-      # + when external params are invalid, an `{:error, %Ecto.Changeset{}}` will be returned,
-      #   which allows developers to handle it in the fallback controller.
+      # + when external params are invalid, `{:error, params_changeset: %Ecto.Changeset{}}`
+      #   will be returned.
     end
   end
   ```
 
   For more details of the schema definations in `do: block`, check out `CozyParams.Schema`.
+
+  ## Error handling
+
+  As mentioned above, when external params are invalid, `{:error, params_changeset: %Ecto.Changeset{}}`
+  will be returned, which allows developers to match this pattern in the fallback controller,
+  and convert the changeset as error messages by using `CozyParams.get_error_messages/1`.
+
+  For example:
+
+  ```elixir
+  defmodule DemoWeb.PageController do
+    use DemoWeb, :controller
+
+    action_fallback DemoWeb.FallbackController
+
+    params :index do
+      field :name, :string, required: true
+    end
+
+    def index(conn, params) do
+      # ...
+    end
+  end
+
+  defmodule DemoWeb.FallbackController do
+    use DemoWeb, :controller
+
+    # ...
+
+    # handle errors for cozy_params
+    def call(conn, {:error, params_changeset: %Ecto.Changeset{} = changeset}) do
+      messages = CozyParams.get_error_messages(changeset)
+      # render messages in HTML, JSON, etc.
+    end
+
+    # handle errors for normal changsets from Ecto.
+    def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
+      # ...
+    end
+
+    # ...
+  end
+  ```
 
   """
   @doc since: "0.1.0"

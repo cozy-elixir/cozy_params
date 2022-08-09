@@ -419,7 +419,7 @@ defmodule CozyParams.SchemaTest do
       alias ParamsWithOveridedChangeset, as: Params
 
       assert {:error,
-              %Ecto.Changeset{
+              params_changeset: %Ecto.Changeset{
                 valid?: false,
                 errors: [name: {"has invalid format", [validation: :format]}]
               }} = Params.from(%{name: "Charlie"})
