@@ -61,7 +61,7 @@ defmodule CozyParams.Schema do
       end
 
       def changeset(struct, params) do
-        CozyParams.Changeset.cast(struct, params,
+        CozyParams.Changeset.cast_and_validate(struct, params,
           required_fields: @required_fields,
           optional_fields: @optional_fields,
           required_embeds: @required_embeds,

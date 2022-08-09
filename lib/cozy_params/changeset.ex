@@ -1,7 +1,7 @@
 defmodule CozyParams.Changeset do
   @moduledoc false
 
-  def cast(struct, params, opts \\ []) do
+  def cast_and_validate(struct, params, opts \\ []) do
     required_fields = Keyword.fetch!(opts, :required_fields)
     optional_fields = Keyword.fetch!(opts, :optional_fields)
 
