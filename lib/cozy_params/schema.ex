@@ -17,7 +17,6 @@ defmodule CozyParams.Schema do
   2. `field(name, type, opts \\ [])`
      - available `opts`:
        - `:default`
-       - `:autogenerate`
        - `:required` - default: `false`
   3. `embeds_one(name, opts \\ [], do: block)`
      - available `opts`:

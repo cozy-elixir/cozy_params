@@ -391,26 +391,13 @@ defmodule CozyParams.SchemaTest do
 
         schema do
           field :age, :integer, default: 6
+          field :alert_at, :time, default: ~T[13:26:08]
         end
       end
 
       alias ParamsWithDefaultOption, as: Params
-      assert {:ok, %{age: 6}} = Params.from(%{})
+      assert {:ok, %{age: 6, alert_at: ~T[13:26:08]}} = Params.from(%{})
     end
-
-    # test "supports option - :autogenerate" do
-    #   defmodule ParamsWithAutogenerateOption do
-    #     use CozyParams.Schema
-
-    #     schema do
-    #       field :published_at, :utc_datetime,
-    #         autogenerate: {DateTime, :new!, [~D[2016-05-24], ~T[13:26:08.003], "Etc/UTC"]}
-    #     end
-    #   end
-
-    #   alias ParamsWithAutogenerateOption, as: Params
-    #   assert {:ok, %{published_at: ~U[2016-05-24 13:26:08.003Z]}} = Params.from(%{})
-    # end
   end
 
   describe "changeset/2" do
