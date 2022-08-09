@@ -38,7 +38,7 @@ defmodule CozyParams.MixProject do
 
   defp docs do
     [
-      extras: ["README.md"],
+      extras: ["README.md", "FAQ.md"],
       main: "readme",
       source_url: @source_url,
       source_ref: @version

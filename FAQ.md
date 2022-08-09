@@ -4,15 +4,15 @@
 
 By default, `CozyParams` just:
 
-- cast types.
-- validate required fields.
+- casts types of fields.
+- validates presence of fields.
 
-But, people usually expect more.
+But, people usually expect more, such as validating format, etc.
 
 The easiest way is to override `changeset/2` in a schema. For example:
 
 ```elixir
-defmodule GoodParamsWithInlineSyntax do
+defmodule SampleParams do
   use CozyParams.Schema
 
   schema do

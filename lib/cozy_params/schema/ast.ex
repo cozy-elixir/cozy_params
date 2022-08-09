@@ -1,5 +1,7 @@
 defmodule CozyParams.Schema.AST do
-  @moduledoc false
+  @moduledoc """
+  Process the AST of `CozyParams`.
+  """
 
   @doc """
   Make sure that the AST is always a block.
