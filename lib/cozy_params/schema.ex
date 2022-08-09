@@ -59,6 +59,8 @@ defmodule CozyParams.Schema do
       end
     end
   end
+
+  PersonParams.from(%{})
   ```
 
 
@@ -93,6 +95,8 @@ defmodule CozyParams.Schema do
       embeds_many :pets, Pet
     end
   end
+
+  PersonParams.from(%{})
   ```
 
   ## About the generated functions
@@ -102,6 +106,13 @@ defmodule CozyParams.Schema do
   1. `changeset/2` which is overridable.
   2. `from/1` / `from/2` which will be called by high-level abstractions, such as
      `CozyParams`, `CozyParams.PhoenixController`.
+
+  You can specify the type of return value of `from/2`:
+
+  ```elixir
+  PersonParams.from(%{}, type: :struct) # %PersonParams{}
+  PersonParams.from(%{}, type: :map)    # %{}
+  ```
 
   """
   @moduledoc since: "0.1.0"
