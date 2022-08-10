@@ -16,7 +16,7 @@ defmodule DemoWeb.PageController do
   def index(conn, params) do
     with {:ok, data} <- product_search(params) do
       # when external params are invalid, `{:error, params_changeset: %Ecto.Changeset{}}`
-      #   will be returned.
+      # will be returned.
     end
   end
 end
@@ -79,28 +79,28 @@ The easiest way is to override `changeset/2` in a schema. For example:
 
 ```elixir
 defmodule SampleParams do
-use CozyParams.Schema
+  use CozyParams.Schema
 
-schema do
-  field :name, :string, required: true
-  field :age, :integer
-
-  embeds_one :mate, required: true do
+  schema do
     field :name, :string, required: true
     field :age, :integer
+
+    embeds_one :mate, required: true do
+      field :name, :string, required: true
+      field :age, :integer
+    end
+
+    embeds_many :pets do
+      field :name, :string, required: true
+      field :breed, :string
+    end
   end
 
-  embeds_many :pets do
-    field :name, :string, required: true
-    field :breed, :string
+  def changeset(struct, params) do
+    struct
+    |> super(params)
+    |> Ecto.Changeset.validate_* # ...
   end
-end
-
-def changeset(struct, params) do
-  struct
-  |> super(params)
-  |> Ecto.Changeset.validate_* # ...
-end
 end
 ```
 
