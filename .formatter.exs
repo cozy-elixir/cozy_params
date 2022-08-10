@@ -3,13 +3,14 @@
   import_deps: [:ecto],
   inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}"],
   locals_without_parens: [
-    defparams: :*,
-    params: :*
+    defparams: :*
   ],
   export: [
     locals_without_parens: [
       defparams: :*,
-      params: :*
+      field: :*,
+      embeds_one: :*,
+      embeds_many: :*
     ]
   ]
 ]
