@@ -34,14 +34,7 @@ defmodule CozyParams do
   2. inject `product_search/1` and `product_search/2` into current module. And, these
      two functions will call `Demo.CozyParams.ProductSearch.from` internally.
 
-  For more details of the schema definations in `do: block`, check out `CozyParams.Schema`.
-
-  > `defparams` can be used in any module, not limited to Phoenix controllers.
-  >
-  > In order to demonstrate this point, above example is using an normal `Demo` module,
-  > instead of a Phoenix controller.
-  >
-  > For better integration with Phoenix controllers, check out `CozyParams.PhoenixController`.
+  For more details of the schema definitions in `do: block`, check out `CozyParams.Schema`.
 
   ## Error handling
 

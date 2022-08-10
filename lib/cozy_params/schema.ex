@@ -104,7 +104,7 @@ defmodule CozyParams.Schema do
 
   1. `changeset/2` which is overridable.
   2. `from/1` / `from/2` which will be called by high-level abstractions, such as
-     `CozyParams`, `CozyParams.PhoenixController`.
+     `CozyParams`.
 
   You can specify the type of return value of `from/2`:
 

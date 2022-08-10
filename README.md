@@ -47,18 +47,9 @@ end
 ## Overview
 
 - `CozyParams` - provides macros for general usage.
-- For better integration with other libraries:
-  - `CozyParams.PhoenixController`
-  - ...
-- `CozyParams.Schema` - the module at lowest level. Generally, you don't use it directly.
+- `CozyParams.Schema` - provides macros for defining schemas directly.
 
 Visit [HexDocs](https://hexdocs.pm/cozy_params) for more details.
-
-## Which module should I use?
-
-- If you want to use `cozy_params` with `phoenix` controllers, use `CozyParams.PhoenixController`.
-- If you want to use `cozy_params` in other cases, use `CozyParams`.
-- If you want to know how `cozy_params` works, explore `CozyParams.Schema`.
 
 ## uhhh... I don't like it
 
