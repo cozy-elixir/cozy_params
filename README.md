@@ -49,18 +49,51 @@ end
 - `CozyParams` - provides macros for general usage.
 - `CozyParams.Schema` - provides macros for defining schemas directly.
 
+An example integrating with Phoenix:
+
+```elixir
+defmodule DemoWeb.PageController do
+  use DemoWeb, :controller
+  import CozyParams
+
+  action_fallback DemoWeb.FallbackController
+
+  defparams :product_search do
+    field :name, :string, required: true
+
+    embeds_many :tags do
+      field :name, :string, required: true
+    end
+  end
+
+  def index(conn, params) do
+    with {:ok, data} <- product_search(params) do
+      # ...
+    end
+  end
+end
+
+defmodule DemoWeb.FallbackController do
+  use DemoWeb, :controller
+
+  # ...
+
+  # handle errors for cozy_params
+  def call(conn, {:error, params_changeset: %Ecto.Changeset{} = changeset}) do
+    messages = CozyParams.get_error_messages(changeset)
+    # render messages in HTML, JSON, etc.
+  end
+
+  # handle errors for normal changsets from Ecto.
+  def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
+    # ...
+  end
+
+  # ...
+end
+```
+
 Visit [HexDocs](https://hexdocs.pm/cozy_params) for more details.
-
-## uhhh... I don't like it
-
-You can try:
-
-- [params](https://github.com/vic/params)
-- [maru_params](https://github.com/elixir-maru/maru_params)
-- [tarams](https://github.com/bluzky/tarams)
-- [`params.ex` from imranismail](https://gist.github.com/imranismail/eb60c709b230c1cbf344553888b9387d)
-
-Find more at [hex.pm](https://hex.pm/packages?search=params&sort=recent_downloads).
 
 ## License
 
