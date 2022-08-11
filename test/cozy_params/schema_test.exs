@@ -153,7 +153,7 @@ defmodule CozyParams.SchemaTest do
                         ]}
                    ]
                  ]}
-              ]} = IntrospectionParams.__cozy_params_schema__(:original)
+              ]} = IntrospectionParams.__cozy_params_schema__(:original_ast)
 
       assert {:__block__, _,
               [
@@ -180,7 +180,7 @@ defmodule CozyParams.SchemaTest do
                    :pets,
                    CozyParams.SchemaTest.IntrospectionParams.Pets
                  ]}
-              ]} = IntrospectionParams.__cozy_params_schema__(:transpiled)
+              ]} = IntrospectionParams.__cozy_params_schema__(:transpiled_ast)
 
       assert {:__block__, _,
               [
@@ -206,7 +206,7 @@ defmodule CozyParams.SchemaTest do
                    :pets,
                    CozyParams.SchemaTest.IntrospectionParams.Pets
                  ]}
-              ]} = IntrospectionParams.__cozy_params_schema__(:ecto)
+              ]} = IntrospectionParams.__cozy_params_schema__(:ecto_ast)
     end
 
     test "works with inline syntax" do

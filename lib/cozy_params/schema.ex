@@ -113,6 +113,26 @@ defmodule CozyParams.Schema do
   PersonParams.from(%{}, type: :map)    # %{}
   ```
 
+  ## Reflection
+
+  Schemas will generate the following functions that can be used for runtime
+  introspection of the schema:
+
+  + `__cozy_params_schema__/0`
+  + `__cozy_params_schema__/1`
+  + `__cozy_params_changeset__/0`
+  + `__cozy_params_changeset__/1`
+
+  All possible calls:
+
+  + `__cozy_params_schema__()` - an alias of `__cozy_params_schema__(:metadata)`.
+  + `__cozy_params_schema__(:metadata)` - returns the metadata of current schema.
+  + `__cozy_params_schema__(:original_ast)` - returns the original AST passed to `schema/1`.
+  + `__cozy_params_schema__(:transpiled_ast)` - returns the transpiled AST used by `cozy_params`.
+  + `__cozy_params_schema__(:ecto_ast)` - returns the AST used by Ecto.
+  + `__cozy_params_changeset__()` - an alias of `__cozy_params_changeset__(:metadata)`.
+  + `__cozy_params_changeset__(:metadata)` - returns the metadata used by `CozyParams.Changeset`.
+
   """
   @moduledoc since: "0.1.0"
 
@@ -133,13 +153,13 @@ defmodule CozyParams.Schema do
     block = AST.as_block(block)
 
     AST.validate_block!(block)
-    Module.put_attribute(caller_module, :cozy_params_schema_original, block)
+    Module.put_attribute(caller_module, :cozy_params_schema_original_ast, block)
 
     {transpiled_block, modules_to_be_created} = AST.transpile_block(caller_module, block)
-    Module.put_attribute(caller_module, :cozy_params_schema_transpiled, transpiled_block)
+    Module.put_attribute(caller_module, :cozy_params_schema_transpiled_ast, transpiled_block)
 
     ecto_block = AST.as_ecto_block(transpiled_block)
-    Module.put_attribute(caller_module, :cozy_params_schema_ecto, ecto_block)
+    Module.put_attribute(caller_module, :cozy_params_schema_ecto_ast, ecto_block)
 
     schema_metadata = AST.extract_metadata(block)
     Module.put_attribute(caller_module, :cozy_params_schema_metadata, schema_metadata)
@@ -193,9 +213,9 @@ defmodule CozyParams.Schema do
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:metadata)
       def __cozy_params_schema__(:metadata), do: @cozy_params_schema_metadata
-      def __cozy_params_schema__(:original), do: @cozy_params_schema_original
-      def __cozy_params_schema__(:transpiled), do: @cozy_params_schema_transpiled
-      def __cozy_params_schema__(:ecto), do: @cozy_params_schema_ecto
+      def __cozy_params_schema__(:original_ast), do: @cozy_params_schema_original_ast
+      def __cozy_params_schema__(:transpiled_ast), do: @cozy_params_schema_transpiled_ast
+      def __cozy_params_schema__(:ecto_ast), do: @cozy_params_schema_ecto_ast
 
       def __cozy_params_changeset__(), do: __cozy_params_changeset__(:metadata)
       def __cozy_params_changeset__(:metadata), do: @cozy_params_changeset_metadata
