@@ -225,60 +225,36 @@ defmodule CozyParams.Schema.AST do
   end
 
   @doc """
-  Extract fields from AST.
+  Extract metadata from AST.
   """
-  def extract_fields({:__block__, _, args}) do
-    Enum.reduce(args, %{required: [], optional: []}, fn
+  def extract_metadata({:__block__, _, args}) do
+    args
+    |> Enum.reduce([], fn
       {:field, _, [name, _type]}, acc ->
-        auto_push(acc, name, [])
+        [{:field, name, required: false} | acc]
 
       {:field, _, [name, _type, opts]}, acc ->
-        auto_push(acc, name, opts)
+        [{:field, name, opts} | acc]
 
-      _, acc ->
-        acc
-    end)
-  end
-
-  @doc """
-  Extract embeds from AST.
-  """
-  def extract_embeds({:__block__, _, args}) do
-    Enum.reduce(args, %{required: [], optional: []}, fn
       {call, _, [name, [do: _]]}, acc
       when call in [:embeds_one, :embeds_many] ->
-        auto_push(acc, name, [])
+        [{:embeds, name, required: false} | acc]
 
       {call, _, [name, opts, [do: _]]}, acc
       when call in [:embeds_one, :embeds_many] ->
-        auto_push(acc, name, opts)
+        [{:embeds, name, opts} | acc]
 
       {call, _, [name, _schema]}, acc
       when call in [:embeds_one, :embeds_many] ->
-        auto_push(acc, name, [])
+        [{:embeds, name, required: false} | acc]
 
       {call, _, [name, _schema, opts]}, acc
       when call in [:embeds_one, :embeds_many] ->
-        auto_push(acc, name, opts)
+        [{:embeds, name, opts} | acc]
 
       _, acc ->
         acc
     end)
-  end
-
-  defp auto_push(acc, name, opts) do
-    if get_in(opts, [:required]) do
-      push_to_required(acc, name)
-    else
-      push_to_optional(acc, name)
-    end
-  end
-
-  defp push_to_required(acc, name), do: push_to(acc, [:required], name)
-  defp push_to_optional(acc, name), do: push_to(acc, [:optional], name)
-
-  defp push_to(map, path, value) do
-    {_, new} = get_and_update_in(map, path, &{&1, [value | &1]})
-    new
+    |> Enum.reverse()
   end
 end

@@ -1,19 +1,27 @@
+defmodule CozyParams.Changeset.Metadata do
+  defstruct fields_required: [],
+            fields_optional: [],
+            embeds_required: [],
+            embeds_optional: []
+end
+
 defmodule CozyParams.Changeset do
   @moduledoc false
 
+  alias CozyParams.Changeset.Metadata
+
   @doc false
-  def cast_and_validate(struct, params, opts \\ []) do
-    required_fields = Keyword.fetch!(opts, :required_fields)
-    optional_fields = Keyword.fetch!(opts, :optional_fields)
-
-    required_embeds = Keyword.fetch!(opts, :required_embeds)
-    optional_embeds = Keyword.fetch!(opts, :optional_embeds)
-
+  def cast_and_validate(struct, params, %Metadata{
+        fields_required: fields_required,
+        fields_optional: fields_optional,
+        embeds_required: embeds_required,
+        embeds_optional: embeds_optional
+      }) do
     struct
-    |> Ecto.Changeset.cast(params, required_fields ++ optional_fields)
-    |> Ecto.Changeset.validate_required(required_fields)
-    |> cast_embeds(required_embeds, required: true)
-    |> cast_embeds(optional_embeds)
+    |> Ecto.Changeset.cast(params, fields_required ++ fields_optional)
+    |> Ecto.Changeset.validate_required(fields_required)
+    |> cast_embeds(embeds_required, required: true)
+    |> cast_embeds(embeds_optional)
   end
 
   @doc false
@@ -52,5 +60,25 @@ defmodule CozyParams.Changeset do
     Enum.reduce(names, changeset, fn name, acc ->
       Ecto.Changeset.cast_embed(acc, name, opts)
     end)
+  end
+
+  @doc false
+  def new_metadata(), do: %Metadata{}
+
+  @doc false
+  def set_metadata(metadata, key, name)
+      when key in [
+             :fields_required,
+             :fields_optional,
+             :embeds_required,
+             :embeds_optional
+           ] and is_atom(name) do
+    push_to(metadata, [key], name)
+  end
+
+  defp push_to(metadata, paths, value) when is_list(paths) do
+    paths = Enum.map(paths, &Access.key(&1))
+    {_, new} = get_and_update_in(metadata, paths, &{&1, [value | &1]})
+    new
   end
 end

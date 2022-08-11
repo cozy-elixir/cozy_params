@@ -141,21 +141,11 @@ defmodule CozyParams.Schema do
     ecto_block = AST.as_ecto_block(transpiled_block)
     Module.put_attribute(caller_module, :cozy_params_schema_ecto, ecto_block)
 
-    %{
-      required: required_fields,
-      optional: optional_fields
-    } = AST.extract_fields(block)
+    schema_metadata = AST.extract_metadata(block)
+    Module.put_attribute(caller_module, :cozy_params_schema_metadata, schema_metadata)
 
-    Module.put_attribute(caller_module, :required_fields, required_fields)
-    Module.put_attribute(caller_module, :optional_fields, optional_fields)
-
-    %{
-      required: required_embeds,
-      optional: optional_embeds
-    } = AST.extract_embeds(block)
-
-    Module.put_attribute(caller_module, :required_embeds, required_embeds)
-    Module.put_attribute(caller_module, :optional_embeds, optional_embeds)
+    changeset_metadata = to_changeset_metadata(schema_metadata)
+    Module.put_attribute(caller_module, :cozy_params_changeset_metadata, changeset_metadata)
 
     for {module_name, module_schema_block} <- modules_to_be_created do
       contents =
@@ -183,11 +173,10 @@ defmodule CozyParams.Schema do
       end
 
       def changeset(struct, params) do
-        CozyParams.Changeset.cast_and_validate(struct, params,
-          required_fields: @required_fields,
-          optional_fields: @optional_fields,
-          required_embeds: @required_embeds,
-          optional_embeds: @optional_embeds
+        CozyParams.Changeset.cast_and_validate(
+          struct,
+          params,
+          @cozy_params_changeset_metadata
         )
       end
 
@@ -202,10 +191,33 @@ defmodule CozyParams.Schema do
         |> CozyParams.Changeset.apply_action(type)
       end
 
-      def __cozy_params_schema__(), do: __cozy_params_schema__(:original)
+      def __cozy_params_schema__(), do: __cozy_params_schema__(:metadata)
+      def __cozy_params_schema__(:metadata), do: @cozy_params_schema_metadata
       def __cozy_params_schema__(:original), do: @cozy_params_schema_original
       def __cozy_params_schema__(:transpiled), do: @cozy_params_schema_transpiled
       def __cozy_params_schema__(:ecto), do: @cozy_params_schema_ecto
+
+      def __cozy_params_changeset__(), do: __cozy_params_changeset__(:metadata)
+      def __cozy_params_changeset__(:metadata), do: @cozy_params_changeset_metadata
     end
+  end
+
+  defp to_changeset_metadata(schema_metadata) do
+    alias CozyParams.Changeset
+
+    Enum.reduce(schema_metadata, Changeset.new_metadata(), fn
+      {:field, name, opts}, metadata ->
+        if opts[:required],
+          do: Changeset.set_metadata(metadata, :fields_required, name),
+          else: Changeset.set_metadata(metadata, :fields_optional, name)
+
+      {:embeds, name, opts}, metadata ->
+        if opts[:required],
+          do: Changeset.set_metadata(metadata, :embeds_required, name),
+          else: Changeset.set_metadata(metadata, :embeds_optional, name)
+
+      _, metadata ->
+        metadata
+    end)
   end
 end
