@@ -31,8 +31,8 @@ defmodule CozyParams do
 
   Above `defparams :product_search do: block` will:
   1. create a module `Demo.CozyParams.ProductSearch` automatically.
-  2. inject `product_search/1` and `product_search/2` into current module. And, these
-     two functions will call `Demo.CozyParams.ProductSearch.from` internally.
+  2. inject `product_search/1` into current module. And, this function
+     will call `Demo.CozyParams.ProductSearch.from/1` internally.
 
   For more details of the schema definitions in `do: block`, check out `CozyParams.Schema`.
 
@@ -59,8 +59,8 @@ defmodule CozyParams do
     Module.create(module_name, contents, Macro.Env.location(__CALLER__))
 
     quote do
-      def unquote(name)(params, opts \\ []) do
-        unquote(module_name).from(params, opts)
+      def unquote(name)(params) do
+        unquote(module_name).from(params)
       end
     end
   end

@@ -111,15 +111,7 @@ defmodule CozyParams.Schema do
   `schema/1` will create 2 functions automatically:
 
   1. `changeset/2` which is overridable.
-  2. `from/1` / `from/2` which will be called by high-level abstractions, such as
-     `CozyParams`.
-
-  You can specify the type of return value of `from/2`:
-
-  ```elixir
-  PersonParams.from(%{}, type: :struct) # %PersonParams{}
-  PersonParams.from(%{}, type: :map)    # %{}
-  ```
+  2. `from/1` which will be called by high-level abstractions, such as `CozyParams`.
 
   ## Reflection
 
@@ -210,13 +202,11 @@ defmodule CozyParams.Schema do
 
       defoverridable changeset: 2
 
-      def from(params, opts \\ []) do
-        type = Keyword.get(opts, :type, :struct)
-
+      def from(params) do
         __MODULE__
         |> struct
         |> changeset(params)
-        |> CozyParams.Changeset.apply_action(type)
+        |> CozyParams.Changeset.apply_action()
       end
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:metadata)

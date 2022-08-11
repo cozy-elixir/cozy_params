@@ -13,11 +13,6 @@ defmodule CozyParamsTest do
       end
 
       assert {:ok, %_{name: "Charlie"}} = DemoA.product_search(%{"name" => "Charlie"})
-
-      assert {:ok, %_{name: "Charlie"}} =
-               DemoA.product_search(%{"name" => "Charlie"}, type: :struct)
-
-      assert {:ok, %{name: "Charlie"}} = DemoA.product_search(%{"name" => "Charlie"}, type: :map)
     end
 
     test "returns {:error, params_changeset: %Ecto.Changeset{}} when params are invalid" do
@@ -31,12 +26,6 @@ defmodule CozyParamsTest do
 
       assert {:error, params_changeset: %Ecto.Changeset{valid?: false}} =
                DemoB.product_search(%{})
-
-      assert {:error, params_changeset: %Ecto.Changeset{valid?: false}} =
-               DemoB.product_search(%{}, type: :struct)
-
-      assert {:error, params_changeset: %Ecto.Changeset{valid?: false}} =
-               DemoB.product_search(%{}, type: :map)
     end
   end
 

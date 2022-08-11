@@ -55,29 +55,10 @@ defmodule CozyParams.Changeset do
   end
 
   @doc false
-  def apply_action(changeset, :struct) do
+  def apply_action(changeset) do
     changeset
     |> Ecto.Changeset.apply_action(:validate)
     |> case do
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:error, params_changeset: changeset}
-
-      other ->
-        other
-    end
-  end
-
-  @doc false
-  def apply_action(changeset, :map) do
-    changeset
-    |> Ecto.Changeset.apply_action(:validate)
-    |> case do
-      {:ok, struct} ->
-        {:ok,
-         struct
-         |> Map.from_struct()
-         |> Map.delete(:__meta__)}
-
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, params_changeset: changeset}
 

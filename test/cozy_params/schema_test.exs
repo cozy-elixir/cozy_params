@@ -313,6 +313,8 @@ defmodule CozyParams.SchemaTest do
 
       alias ParamsWithAllEctoPrimitiveTypes, as: Params
 
+      decimal = Decimal.new("2.30")
+
       assert {:ok,
               %{
                 id: 123,
@@ -325,7 +327,7 @@ defmodule CozyParams.SchemaTest do
                 array_with_inner_type: [1, 2, 3],
                 map: %{pet: "dog"},
                 map_with_inner_type: %{cat: 1.0, dog: 2.0, sheep: 3.0},
-                decimal: Decimal.new("2.30"),
+                decimal: ^decimal,
                 date: ~D[2022-08-09],
                 time: ~T[10:34:00],
                 naive_datetime: ~N[2022-08-09 10:36:25],
@@ -333,30 +335,27 @@ defmodule CozyParams.SchemaTest do
                 time_usec: ~T[10:34:21.489485],
                 utc_datetime: ~U[2022-08-09 10:36:25Z],
                 utc_datetime_usec: ~U[2022-08-09 10:36:25.648266Z]
-              }} ==
-               Params.from(
-                 %{
-                   id: 123,
-                   binary_id: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
-                   integer: "2234",
-                   float: "1.22",
-                   boolean: "false",
-                   string: "hello world!",
-                   binary: "hello world!",
-                   array_with_inner_type: ["1", "2", "3"],
-                   map: %{pet: "dog"},
-                   map_with_inner_type: %{cat: "1", dog: "2", sheep: "3"},
-                   decimal: "2.30",
-                   date: "2022-08-09",
-                   time: "10:34:00",
-                   time_usec: "10:34:21.489485",
-                   naive_datetime: "2022-08-09 10:36:25.648266",
-                   naive_datetime_usec: "2022-08-09 10:36:25.648266",
-                   utc_datetime: "2022-08-09 10:36:25.648266",
-                   utc_datetime_usec: "2022-08-09 10:36:25.648266"
-                 },
-                 type: :map
-               )
+              }} =
+               Params.from(%{
+                 id: 123,
+                 binary_id: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                 integer: "2234",
+                 float: "1.22",
+                 boolean: "false",
+                 string: "hello world!",
+                 binary: "hello world!",
+                 array_with_inner_type: ["1", "2", "3"],
+                 map: %{pet: "dog"},
+                 map_with_inner_type: %{cat: "1", dog: "2", sheep: "3"},
+                 decimal: "2.30",
+                 date: "2022-08-09",
+                 time: "10:34:00",
+                 time_usec: "10:34:21.489485",
+                 naive_datetime: "2022-08-09 10:36:25.648266",
+                 naive_datetime_usec: "2022-08-09 10:36:25.648266",
+                 utc_datetime: "2022-08-09 10:36:25.648266",
+                 utc_datetime_usec: "2022-08-09 10:36:25.648266"
+               })
     end
 
     test "supports custom types of Ecto" do
@@ -375,14 +374,11 @@ defmodule CozyParams.SchemaTest do
               %{
                 uuid: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
                 enum: :cat
-              }} ==
-               Params.from(
-                 %{
-                   uuid: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
-                   enum: "cat"
-                 },
-                 type: :map
-               )
+              }} =
+               Params.from(%{
+                 uuid: "e7d3e3c9-9c8c-443a-99db-e21609304fb9",
+                 enum: "cat"
+               })
     end
 
     test "supports option - :default" do
