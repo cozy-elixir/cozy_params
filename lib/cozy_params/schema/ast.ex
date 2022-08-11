@@ -71,26 +71,42 @@ defmodule CozyParams.Schema.AST do
       :values,
 
       # cozy_params only
-      :required
+      :required,
+      :pre_cast
     ]
 
-    Enum.each(opts, fn {name, _v} ->
-      do_validate!(ast, name, supported_opt_names)
+    Enum.each(opts, fn opt ->
+      do_validate_opt!(ast, opt, supported_opt_names)
     end)
   end
 
   defp validate_opts!(ast, opts) do
     supported_opt_names = [:required]
 
-    Enum.each(opts, fn {name, _v} ->
-      do_validate!(ast, name, supported_opt_names)
+    Enum.each(opts, fn opt ->
+      do_validate_opt!(ast, opt, supported_opt_names)
     end)
   end
 
-  defp do_validate!(ast, opt_name, supported_opt_names) do
-    unless opt_name in supported_opt_names do
+  defp do_validate_opt!(ast, {:pre_cast = name, func_ast}, _supported_names) do
+    {func, []} = Code.eval_quoted(func_ast)
+
+    unless is_function(func, 1) do
       raise ArgumentError,
-            "invalid option #{inspect(opt_name)} for #{format_fa(ast)} of cozy_params"
+            Enum.join(
+              [
+                "invalid value of option #{inspect(name)} for #{format_fa(ast)} of cozy_params",
+                "it must be a function whose arity number of arguments is 1"
+              ],
+              ", "
+            )
+    end
+  end
+
+  defp do_validate_opt!(ast, {name, _}, supported_names) do
+    unless name in supported_names do
+      raise ArgumentError,
+            "invalid option #{inspect(name)} for #{format_fa(ast)} of cozy_params"
     end
   end
 
@@ -215,7 +231,7 @@ defmodule CozyParams.Schema.AST do
   end
 
   defp drop_unsupported_opts(opts) when is_list(opts) do
-    unsupported_opts = [:required]
+    unsupported_opts = [:required, :pre_cast]
     opts = Enum.reject(opts, fn {k, _v} -> k in unsupported_opts end)
 
     cond do

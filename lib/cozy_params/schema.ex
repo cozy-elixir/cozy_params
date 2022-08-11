@@ -18,6 +18,7 @@ defmodule CozyParams.Schema do
      - available `opts`:
        - `:default`
        - `:required` - default: `false`
+       - `:pre_cast`
   3. `embeds_one(name, opts \\ [], do: block)`
      - available `opts`:
        - `:required` - default: `false`
@@ -46,6 +47,7 @@ defmodule CozyParams.Schema do
     schema do
       field :name, :string, required: true
       field :age, :integer
+      field :wishlist, {:array, :string}, pre_cast: &String.split(&1, ~r/,\s*/)
 
       embeds_one :mate, required: true do
         field :name, :string, required: true
@@ -59,7 +61,13 @@ defmodule CozyParams.Schema do
     end
   end
 
-  PersonParams.from(%{})
+  PersonParams.from(%{
+    name: "Charlie",
+    mate: %{
+      name: "Lucy"
+    },
+    wishlist: "table,chair,computer"
+  })
   ```
 
 
@@ -227,9 +235,14 @@ defmodule CozyParams.Schema do
 
     Enum.reduce(schema_metadata, Changeset.new_metadata(), fn
       {:field, name, opts}, metadata ->
-        if opts[:required],
-          do: Changeset.set_metadata(metadata, :fields_required, name),
-          else: Changeset.set_metadata(metadata, :fields_optional, name)
+        metadata =
+          if opts[:required],
+            do: Changeset.set_metadata(metadata, :fields_required, name),
+            else: Changeset.set_metadata(metadata, :fields_optional, name)
+
+        if pre_cast_func = opts[:pre_cast],
+          do: Changeset.set_metadata(metadata, :fields_to_be_pre_casted, {name, pre_cast_func}),
+          else: metadata
 
       {:embeds, name, opts}, metadata ->
         if opts[:required],

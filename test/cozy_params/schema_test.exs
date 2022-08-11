@@ -398,6 +398,23 @@ defmodule CozyParams.SchemaTest do
       alias ParamsWithDefaultOption, as: Params
       assert {:ok, %{age: 6, alert_at: ~T[13:26:08]}} = Params.from(%{})
     end
+
+    test "supports option - :pre_cast" do
+      defmodule ParamsWithPreCastOption do
+        use CozyParams.Schema
+
+        schema do
+          field :wishlist, {:array, :string}, default: [], pre_cast: &String.split(&1, ~r/,\s*/)
+        end
+      end
+
+      alias ParamsWithPreCastOption, as: Params
+
+      assert {:ok, %{wishlist: ["table", "chair", "computer"]}} =
+               Params.from(%{wishlist: "table, chair, computer"})
+
+      assert {:ok, %{wishlist: []}} = Params.from(%{})
+    end
   end
 
   describe "changeset/2" do
