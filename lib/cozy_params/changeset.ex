@@ -1,4 +1,6 @@
 defmodule CozyParams.Changeset.Metadata do
+  @moduledoc false
+
   defstruct fields_to_be_pre_casted: [],
             fields_required: [],
             fields_optional: [],

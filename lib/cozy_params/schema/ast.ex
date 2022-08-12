@@ -96,7 +96,7 @@ defmodule CozyParams.Schema.AST do
             Enum.join(
               [
                 "invalid value of option #{inspect(name)} for #{format_fa(ast)} of cozy_params",
-                "it must be a function whose arity number of arguments is 1"
+                "it must be a unary function"
               ],
               ", "
             )
@@ -195,10 +195,10 @@ defmodule CozyParams.Schema.AST do
   end
 
   @doc """
-  Transform `cozy_params` supported AST to `ecto` supported AST.
+  Transform `cozy_params` supported AST to Ecto supported AST.
 
   Currently, this function will:
-  + drop options which are supported by `cozy_params` only. Or, `ecto` will report
+  + drop options which are supported by `cozy_params` only. Or, Ecto will report
     invalid option errors.
   """
   def as_ecto_block({:__block__, _meta, _args} = block) do

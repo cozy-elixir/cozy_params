@@ -18,7 +18,7 @@ defmodule CozyParams.Schema do
      - available `opts`:
        - `:default`
        - `:required` - default: `false`
-       - `:pre_cast`
+       - `:pre_cast` - specify a unary function to process data before casting
   3. `embeds_one(name, opts \\ [], do: block)`
      - available `opts`:
        - `:required` - default: `false`
@@ -38,7 +38,11 @@ defmodule CozyParams.Schema do
 
   ## Examples
 
-  Define a schema contains embedded fields in inline syntax:
+  There're 2 ways to define a schema:
+  1. use inline syntax
+  2. use extra modules
+
+  ### Define a schema contains embedded fields in inline syntax:
 
   ```elixir
   defmodule PersonParams do
@@ -71,7 +75,7 @@ defmodule CozyParams.Schema do
   ```
 
 
-  Define a schema contains embedded fields with extra modules:
+  ### Define a schema contains embedded fields with extra modules:
 
   ```elixir
   defmodule PersonParams do
@@ -83,6 +87,7 @@ defmodule CozyParams.Schema do
       schema do
         field :name, :string, required: true
         field :age, :integer
+        field :wishlist, {:array, :string}, pre_cast: &String.split(&1, ~r/,\s*/)
       end
     end
 
@@ -103,7 +108,13 @@ defmodule CozyParams.Schema do
     end
   end
 
-  PersonParams.from(%{})
+  PersonParams.from(%{
+    name: "Charlie",
+    mate: %{
+      name: "Lucy"
+    },
+    wishlist: "table,chair,computer"
+  })
   ```
 
   ## About the generated functions
