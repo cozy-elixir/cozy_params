@@ -1,6 +1,6 @@
 defmodule CozyParams.Schema.AST do
   @moduledoc """
-  Process the AST of `CozyParams`.
+  Process the AST of `cozy_params`.
   """
 
   @doc """

@@ -68,7 +68,7 @@ end
 
 ## How to expand the capabilities of schemas?
 
-By default, `CozyParams` just:
+By default, `cozy_params` just:
 
 - casts types of fields.
 - validates presence of fields.
