@@ -75,13 +75,12 @@ defmodule CozyParams do
   Extract error messages from `%Ecto.Changeset{}`.
   """
   @doc since: "0.1.0"
-  def get_error_messages(%Ecto.Changeset{changes: changes} = changeset) do
-    errors_in_current_changset =
-      Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-        Enum.reduce(opts, msg, fn {key, value}, acc ->
-          String.replace(acc, "%{#{key}}", to_string(value))
-        end)
-      end)
+  def get_error_messages(%Ecto.Changeset{} = changeset) do
+    get_error_messages(changeset, &default_msg/1)
+  end
+
+  def get_error_messages(%Ecto.Changeset{changes: changes} = changeset, msg_func) do
+    errors_in_current_changset = Ecto.Changeset.traverse_errors(changeset, msg_func)
 
     errors_in_nested_changeset =
       changes
@@ -92,5 +91,11 @@ defmodule CozyParams do
       errors_in_nested_changeset,
       errors_in_current_changset
     )
+  end
+
+  defp default_msg({msg, opts}) do
+    Enum.reduce(opts, msg, fn {key, value}, acc ->
+      String.replace(acc, "%{#{key}}", to_string(value))
+    end)
   end
 end
