@@ -93,4 +93,23 @@ defmodule CozyParamsTest do
                CozyParams.get_error_messages(changeset)
     end
   end
+
+  describe "get_error_messages/2" do
+    test "works with custom msg_func" do
+      defmodule DemoD do
+        import CozyParams
+
+        defparams :product_search do
+          field :name, :string, required: true
+        end
+
+        def translate_error({"can't be blank", _opts}), do: "は必須項目です"
+      end
+
+      assert {:error, params_changeset: changeset} = DemoD.product_search(%{})
+
+      assert %{name: ["は必須項目です"]} ==
+               CozyParams.get_error_messages(changeset, &DemoD.translate_error/1)
+    end
+  end
 end
