@@ -79,6 +79,13 @@ defmodule CozyParams do
     get_error_messages(changeset, &default_msg/1)
   end
 
+  @doc """
+  Extract error messages from `%Ecto.Changeset{}` with a given function.
+
+  The `msg_func` will be passed to `Ecto.Changeset.traverse_errors/2`, read doc of
+  `Ecto.Changeset.traverse_errors/2` for more information.
+  """
+  @doc since: "1.1.0"
   def get_error_messages(%Ecto.Changeset{changes: changes} = changeset, msg_func) do
     errors_in_current_changset = Ecto.Changeset.traverse_errors(changeset, msg_func)
 
