@@ -45,10 +45,10 @@ defmodule CozyParams do
   """
   @doc since: "0.1.0"
   defmacro defparams(name, do: block) when is_atom(name) do
-    module_name = to_module_name(__CALLER__.module, name)
+    module_name = Module.concat([__MODULE__, Macro.camelize("#{name}")])
 
-    contents =
-      quote do
+    quote do
+      defmodule unquote(module_name) do
         use CozyParams.Schema
 
         schema do
@@ -56,19 +56,10 @@ defmodule CozyParams do
         end
       end
 
-    Module.create(module_name, contents, Macro.Env.location(__CALLER__))
-
-    quote do
       def unquote(name)(params) do
         unquote(module_name).from(params)
       end
     end
-  end
-
-  defp to_module_name(caller_module, name) do
-    namespace_for_cozy_params = __MODULE__
-
-    Module.concat([caller_module, namespace_for_cozy_params, Macro.camelize("#{name}")])
   end
 
   @doc """
