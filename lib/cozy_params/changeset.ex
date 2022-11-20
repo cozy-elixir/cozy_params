@@ -4,6 +4,7 @@ defmodule CozyParams.Changeset.Metadata do
   defstruct fields_to_be_pre_casted: [],
             fields_required: [],
             fields_optional: [],
+            fields_with_default: [],
             embeds_required: [],
             embeds_optional: []
 end
@@ -57,15 +58,20 @@ defmodule CozyParams.Changeset do
   end
 
   @doc false
-  def apply_action(changeset) do
+  def apply_action(changeset, %Metadata{} = metadata) do
     changeset
     |> Ecto.Changeset.apply_action(:validate)
     |> case do
+      {:ok, data} ->
+        %{fields_with_default: fields_with_default} = metadata
+
+        {:ok,
+         data
+         |> to_map()
+         |> reject_value(fields_with_default)}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, params_changeset: changeset}
-
-      other ->
-        other
     end
   end
 
@@ -73,6 +79,19 @@ defmodule CozyParams.Changeset do
     Enum.reduce(names, changeset, fn name, acc ->
       Ecto.Changeset.cast_embed(acc, name, opts)
     end)
+  end
+
+  defp to_map(data) when is_struct(data) do
+    Map.from_struct(data)
+  end
+
+  defp reject_value(data, fields_with_default)
+       when is_map(data) and is_list(fields_with_default) do
+    data
+    |> Enum.reject(fn {k, v} ->
+      v == nil && k not in fields_with_default
+    end)
+    |> Enum.into(%{})
   end
 
   @doc false
@@ -83,6 +102,7 @@ defmodule CozyParams.Changeset do
       when path in [
              :fields_required,
              :fields_optional,
+             :fields_with_default,
              :embeds_required,
              :embeds_optional
            ] and is_atom(name) do

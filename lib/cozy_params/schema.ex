@@ -217,7 +217,7 @@ defmodule CozyParams.Schema do
         __MODULE__
         |> struct
         |> changeset(params)
-        |> CozyParams.Changeset.apply_action()
+        |> CozyParams.Changeset.apply_action(@cozy_params_changeset_metadata)
       end
 
       def __cozy_params_schema__(), do: __cozy_params_schema__(:metadata)
@@ -241,8 +241,13 @@ defmodule CozyParams.Schema do
             do: Changeset.set_metadata(metadata, :fields_required, name),
             else: Changeset.set_metadata(metadata, :fields_optional, name)
 
-        if pre_cast_func = opts[:pre_cast],
-          do: Changeset.set_metadata(metadata, :fields_to_be_pre_casted, {name, pre_cast_func}),
+        metadata =
+          if pre_cast_func = opts[:pre_cast],
+            do: Changeset.set_metadata(metadata, :fields_to_be_pre_casted, {name, pre_cast_func}),
+            else: metadata
+
+        if Keyword.has_key?(opts, :default),
+          do: Changeset.set_metadata(metadata, :fields_with_default, name),
           else: metadata
 
       {:embeds, name, opts}, metadata ->

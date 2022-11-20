@@ -3,20 +3,52 @@ defmodule CozyParamsTest do
   doctest CozyParams
 
   describe "defparams/2" do
-    test "works as expected" do
-      defmodule DemoA do
+    test "returns a map" do
+      defmodule DemoA1 do
         import CozyParams
 
         defparams :product_search do
           field :name, :string, required: true
+          field :age, :integer
         end
       end
 
-      assert {:ok, %_{name: "Charlie"}} = DemoA.product_search(%{"name" => "Charlie"})
+      {:ok, return_value} = DemoA1.product_search(%{"name" => "Charlie"})
+      assert is_map(return_value)
+      refute is_struct(return_value)
+    end
+
+    test "rejects nil values" do
+      defmodule DemoA2 do
+        import CozyParams
+
+        defparams :product_search do
+          field :name, :string, required: true
+          field :age, :integer
+        end
+      end
+
+      assert {:ok, %{name: "Charlie"} = return_value} =
+               DemoA2.product_search(%{"name" => "Charlie"})
+
+      refute Map.has_key?(return_value, :age)
+    end
+
+    test "preserves nil values when the `:default` option is specified" do
+      defmodule DemoA3 do
+        import CozyParams
+
+        defparams :product_search do
+          field :name, :string, required: true
+          field :age, :integer, default: nil
+        end
+      end
+
+      assert {:ok, %{name: "Charlie", age: nil}} = DemoA3.product_search(%{"name" => "Charlie"})
     end
 
     test "returns {:error, params_changeset: %Ecto.Changeset{}} when params are invalid" do
-      defmodule DemoB do
+      defmodule DemoB1 do
         import CozyParams
 
         defparams :product_search do
@@ -25,13 +57,13 @@ defmodule CozyParamsTest do
       end
 
       assert {:error, params_changeset: %Ecto.Changeset{valid?: false}} =
-               DemoB.product_search(%{})
+               DemoB1.product_search(%{})
     end
   end
 
   describe "get_error_messages/1" do
     test "works with defparams/2" do
-      defmodule DemoC do
+      defmodule DemoC1 do
         import CozyParams
 
         defparams :product_search do
@@ -39,7 +71,7 @@ defmodule CozyParamsTest do
         end
       end
 
-      assert {:error, params_changeset: changeset} = DemoC.product_search(%{})
+      assert {:error, params_changeset: changeset} = DemoC1.product_search(%{})
       assert %{name: ["can't be blank"]} == CozyParams.get_error_messages(changeset)
     end
 
