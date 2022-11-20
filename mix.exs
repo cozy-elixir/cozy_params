@@ -1,8 +1,8 @@
 defmodule CozyParams.MixProject do
   use Mix.Project
 
-  @version "1.1.0"
-  @source_url "https://github.com/c4710n/cozy_params"
+  @version "2.0.0"
+  @source_url "https://github.com/cozy-elixir/cozy_params"
   @description "Provides Ecto-like API for casting and validating params."
 
   def project do

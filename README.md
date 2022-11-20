@@ -1,6 +1,6 @@
 # CozyParams
 
-[![Actions Status](https://github.com/c4710n/cozy_params/workflows/build/badge.svg)](https://github.com/c4710n/cozy_params/actions)
+[![Actions Status](https://github.com/cozy-elixir/cozy_params/workflows/build/badge.svg)](https://github.com/cozy-elixir/cozy_params/actions)
 
 Provides Ecto-like API for casting and validating params.
 
