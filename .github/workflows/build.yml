@@ -12,11 +12,16 @@ permissions:
 jobs:
   build:
     name: OTP ${{ matrix.otp }} / Elixir ${{ matrix.elixir }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        otp: ['24.3', '23.3']
-        elixir: ['1.14.0', '1.13.4', '1.12.3']
+        otp: ['25.x', '24.x', '23.x']
+        elixir: ['1.14.0', '1.13.4']
+        include:
+          - otp: '24.x'
+            elixir: '1.12.3'
+          - otp: '23.x'
+            elixir: '1.12.3'
     steps:
     - uses: actions/checkout@v3
     - name: Set up Elixir
