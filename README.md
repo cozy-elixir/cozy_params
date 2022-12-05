@@ -27,7 +27,7 @@ Add `cozy_params` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:cozy_params, "~> 1.0.0"}
+    {:cozy_params, version}
   ]
 end
 ```
