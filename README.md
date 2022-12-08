@@ -22,7 +22,7 @@ But, they don't fit my requirements. The package in my dream should:
 
 ## Installation
 
-Add `cozy_params` to your list of dependencies in `mix.exs`:
+Add `cozy_params` to the list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
