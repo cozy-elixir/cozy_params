@@ -234,8 +234,8 @@ defmodule CozyParams.Schema.AST do
     unsupported_opts = [:required, :pre_cast]
     opts = Enum.reject(opts, fn {k, _v} -> k in unsupported_opts end)
 
-    cond do
-      length(opts) == 0 -> nil
+    case opts do
+      [] -> nil
       opts -> opts
     end
   end
