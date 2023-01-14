@@ -7,6 +7,15 @@ defmodule CozyParams.Changeset.Metadata do
             fields_with_default: [],
             embeds_required: [],
             embeds_optional: []
+
+  @type t :: %__MODULE__{
+          fields_to_be_pre_casted: list(),
+          fields_required: list(),
+          fields_optional: list(),
+          fields_with_default: list(),
+          embeds_required: list(),
+          embeds_optional: list()
+        }
 end
 
 defmodule CozyParams.Changeset do

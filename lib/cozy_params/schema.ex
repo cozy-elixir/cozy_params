@@ -157,6 +157,8 @@ defmodule CozyParams.Schema do
   end
 
   @doc since: "0.1.0"
+  # Disable credo check of cyclomatic complexity
+  # credo:disable-for-next-line
   defmacro schema(do: block) do
     caller_module = __CALLER__.module
     caller_line = __CALLER__.line
