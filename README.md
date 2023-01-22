@@ -1,6 +1,6 @@
 # CozyParams
 
-[![CI](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml/badge.svg)](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml)
+[![CI](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml/badge.svg)](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml) [![Hex.pm](https://img.shields.io/hexpm/v/cozy_params.svg)](https://hex.pm/packages/cozy_params)
 
 Provides Ecto-like API for casting and validating params.
 
@@ -27,7 +27,7 @@ Add `cozy_params` to the list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:cozy_params, version}
+    {:cozy_params, "~> <version>"}
   ]
 end
 ```
