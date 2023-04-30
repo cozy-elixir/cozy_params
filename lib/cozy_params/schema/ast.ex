@@ -66,6 +66,7 @@ defmodule CozyParams.Schema.AST do
     supported_opt_names = [
       # general
       :default,
+      :redact,
 
       # Ecto.Enum
       :values,
