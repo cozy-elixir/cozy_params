@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 (2023-04-30)
+
+- add support of `:redact` field option by @nukosuke
+
 ## 2.0.0 (2022-11-20)
 
 ### Breaking changes
