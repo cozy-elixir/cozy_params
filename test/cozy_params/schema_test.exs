@@ -395,6 +395,20 @@ defmodule CozyParams.SchemaTest do
       assert {:ok, %{age: 6, alert_at: ~T[13:26:08]}} = Params.from(%{})
     end
 
+    test "supports option - :redact" do
+      defmodule ParamsWithRedactOption do
+        use CozyParams.Schema
+
+        schema do
+          field :password, :string, redact: true
+          field :required, :string, required: true
+        end
+      end
+
+      alias ParamsWithRedactOption, as: Params
+      assert Params.from(%{password: "sensitive"}) |> inspect() =~ "password: \"**redacted**\""
+    end
+
     test "supports option - :pre_cast" do
       defmodule ParamsWithPreCastOption do
         use CozyParams.Schema

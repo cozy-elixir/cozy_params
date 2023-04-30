@@ -17,7 +17,8 @@ defmodule CozyParams.MixProject do
       homepage_url: @source_url,
       docs: docs(),
       package: package(),
-      aliases: aliases()
+      aliases: aliases(),
+      consolidate_protocols: Mix.env() != :test
     ]
   end
 
