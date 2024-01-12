@@ -2,39 +2,47 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
 
 jobs:
   mix_check:
-    name: OTP ${{ matrix.otp }} / Elixir ${{ matrix.elixir }}
+    name: Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
     runs-on: ubuntu-20.04
     strategy:
+      # Following matrix is maintained by following https://hexdocs.pm/elixir/compatibility-and-deprecations.html
+      # And, only the most recent 3 versions of Elixir are involved.
       matrix:
-        otp: ['25.x', '24.x', '23.x']
-        elixir: ['1.14.x', '1.13.x']
         include:
-          - otp: '24.x'
-            elixir: '1.12.x'
-          - otp: '23.x'
-            elixir: '1.12.x'
+          # Elixir v1.16
+          - { elixir: '1.16.x', otp: '26.x' }
+          - { elixir: '1.16.x', otp: '25.x' }
+          - { elixir: '1.16.x', otp: '24.x' }
+          # Elixir v1.15
+          - { elixir: '1.15.x', otp: '26.x' }
+          - { elixir: '1.15.x', otp: '25.x' }
+          - { elixir: '1.15.x', otp: '24.x' }
+          # Elixir v1.14
+          - { elixir: '1.14.x', otp: '25.x' }
+          - { elixir: '1.14.x', otp: '24.x' }
+          - { elixir: '1.14.x', otp: '23.x' }
     steps:
     - uses: actions/checkout@v3
     - name: Setup Elixir
       uses: erlef/setup-beam@v1
       with:
-        otp-version: ${{ matrix.otp }}
         elixir-version: ${{ matrix.elixir }}
+        otp-version: ${{ matrix.otp }}
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
         path: deps
-        key: ${{ runner.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix_${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-otp_${{ matrix.otp }}-elixir_${{ matrix.elixir }}-mix
+        key: ${{ runner.os }}-elixir_${{ matrix.elixir }}-otp_${{ matrix.otp }}-mix_${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-elixir_${{ matrix.elixir }}-otp_${{ matrix.otp }}-mix
     - name: Install dependencies
       run: mix deps.get
     - name: Run mix check
