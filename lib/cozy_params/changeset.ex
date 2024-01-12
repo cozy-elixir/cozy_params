@@ -19,7 +19,9 @@ defmodule CozyParams.Changeset.Metadata do
 end
 
 defmodule CozyParams.Changeset do
-  @moduledoc false
+  @moduledoc """
+  Changeset tailored for this lib.
+  """
 
   alias CozyParams.Changeset.Metadata
 
@@ -59,6 +61,7 @@ defmodule CozyParams.Changeset do
     |> Enum.reduce(params, fn {field, func_ast}, acc ->
       if Map.has_key?(params, field) do
         {func, []} = Code.eval_quoted(func_ast)
+        # credo:disable-for-next-line
         update_in(acc, [field], fn value -> apply(func, [value]) end)
       else
         params
