@@ -46,13 +46,12 @@ defmodule CozyParams.MixProject do
       extras: ["README.md", "FAQ.md"],
       main: "readme",
       source_url: @source_url,
-      source_ref: @version
+      source_ref: "v#{@version}"
     ]
   end
 
   defp package do
     [
-      exclude_patterns: [],
       licenses: ["Apache-2.0"],
       links: %{GitHub: @source_url}
     ]
@@ -63,8 +62,8 @@ defmodule CozyParams.MixProject do
   end
 
   defp tag_release(_) do
-    Mix.shell().info("Tagging release as #{@version}")
-    System.cmd("git", ["tag", @version])
+    Mix.shell().info("Tagging release as v#{@version}")
+    System.cmd("git", ["tag", "v#{@version}"])
     System.cmd("git", ["push", "--tags"])
   end
 end
