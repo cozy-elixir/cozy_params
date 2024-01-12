@@ -1,6 +1,8 @@
 # CozyParams
 
-[![CI](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml/badge.svg)](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml) [![Hex.pm](https://img.shields.io/hexpm/v/cozy_params.svg)](https://hex.pm/packages/cozy_params)
+[![CI](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml/badge.svg)](https://github.com/cozy-elixir/cozy_params/actions/workflows/ci.yml)
+[![Hex.pm](https://img.shields.io/hexpm/v/cozy_params.svg)](https://hex.pm/packages/cozy_params)
+[![built with Nix](https://img.shields.io/badge/built%20with%20Nix-5277C3?logo=nixos&logoColor=white)](https://builtwithnix.org)
 
 Provides Ecto-like API for casting and validating params.
 
